@@ -1,7 +1,7 @@
 package com.org.graphql.query;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
-import com.org.graphql.model.HelloWorldRequest;
+import com.org.graphql.model.HelloWorld;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -21,7 +21,7 @@ public class HelloWorldQuery implements GraphQLQueryResolver {
         return firstName + " " + lastName;
     }
 
-    public String fullNameRequestObject(HelloWorldRequest request) {
+    public String fullNameRequestObject(HelloWorld request) {
         return request.getFirstName() + " " + request.getLastName();
     }
 }

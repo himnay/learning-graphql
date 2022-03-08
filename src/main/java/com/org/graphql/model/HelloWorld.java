@@ -3,7 +3,7 @@ package com.org.graphql.model;
 import lombok.Data;
 
 @Data
-public class HelloWorldRequest {
+public class HelloWorld {
     private String firstName;
 
     private String lastName;
