@@ -1,0 +1,6 @@
+graphiql:
+  mapping: /app-ui
+
+graphql:
+  servlet:
+    mapping: /student-service

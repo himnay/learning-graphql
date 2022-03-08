@@ -1,0 +1,11 @@
+type Query {
+    helloWorld : String
+    names: String
+    fullName(firstName : String, lastName : String): String
+    fullNameRequestObject(request : HelloWorldRequest) : String
+}
+
+input HelloWorldRequest {
+    firstName: String!
+    lastName: String!
+}
