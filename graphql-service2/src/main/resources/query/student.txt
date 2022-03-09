@@ -1,0 +1,16 @@
+query {
+    getStudent(id: 1) {
+        id
+        firstName
+        lastName
+        email
+        address {
+            street
+            city
+        }
+        subjects(subjectType: Java) {
+            subjectName
+            marksObtained
+        }
+    }
+}

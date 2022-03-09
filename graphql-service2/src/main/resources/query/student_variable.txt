@@ -1,0 +1,18 @@
+query getStudent($id : Int, $subType : SubjectEnum) {
+    getStudent(id: $id) {
+        id
+        firstName
+        lastName
+        fullName
+        email
+        address {
+            street
+            city
+        }
+        subjects(subjectType: $subType) {
+            id
+            subjectName
+            marksObtained
+        }
+    }
+}

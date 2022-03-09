@@ -1,0 +1,17 @@
+mutation createStudent($student : StudentRequestDto) {
+    createStudent(student : $student) {
+        id
+        firstName
+        lastName
+        fullName
+        email
+        address {
+            street
+            city
+        }
+        subjects(subjectType: All) {
+            subjectName
+            marksObtained
+        }
+    }
+}

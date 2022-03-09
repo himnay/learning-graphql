@@ -1,0 +1,6 @@
+server:
+  port: 8081
+
+graphql:
+  client:
+    url: http://localhost:8080/graphql

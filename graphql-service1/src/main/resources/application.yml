@@ -1,0 +1,33 @@
+#graphiql:
+#  mapping: /app-ui             # default uri "graphiql" can be override
+
+#graphql:
+#  servlet:
+#    mapping: /student-service  # default uri "graphql" can be override
+
+spring:
+  datasource:
+    url: jdbc:h2:file:/Users/himansu/learning-graphql/graphqlDB;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE   # persisted db
+#    url: jdbc:h2:mem:graphqlDB
+    driver-class-name: org.h2.Driver
+  jpa:
+    database: h2
+    database-platform: org.hibernate.dialect.H2Dialect
+    generate-ddl: true
+    open-in-view: true  # https://stackoverflow.com/questions/30549489/what-is-this-spring-jpa-open-in-view-true-property-in-spring-boot
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
+    show-sql: true
+  h2:
+    console:
+      enabled: true  # url:  http://localhost:8080/h2-console . make sure you change the url before you connect to db.
+      path: /h2-console
+  flyway:
+    locations: classpath:db/migration
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include=*:

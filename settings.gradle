@@ -1,1 +1,4 @@
 rootProject.name = 'learning-graphql'
+include 'graphql-service1'
+include 'graphql-service2'
+
