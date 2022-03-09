@@ -4,3 +4,15 @@ graphiql:
 graphql:
   servlet:
     mapping: /student-service
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:graphqlDB
+    driver-class-name: org.h2.Driver
+  jpa:
+    database: h2
+    database-platform: org.hibernate.dialect.H2Dialect
+    generate-ddl: true
+  h2:
+    console:
+      enabled: true  # url:  http://localhost:8080/h2-console . make sure you change the url before you connect to db.

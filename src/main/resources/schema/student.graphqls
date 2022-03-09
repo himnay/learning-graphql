@@ -1,0 +1,19 @@
+extend type Query {
+    getStudent(id : Int) : Student
+}
+
+type Student {
+    id : Int
+    firstName: String
+    lastName: String
+    email: String
+    street: String
+    city: String
+    subjects: [Subject]
+}
+
+type Subject {
+    id: Int
+    subjectName: String
+    marksObtained: Float
+}

@@ -2,10 +2,10 @@ type Query {
     helloWorld : String
     names: String
     fullName(firstName : String, lastName : String): String
-    fullNameRequestObject(request : HelloWorldRequest) : String
+    fullNameRequestObject(request : HelloWorld) : String
 }
 
-input HelloWorldRequest {
+input HelloWorld {
     firstName: String!
     lastName: String!
 }

@@ -1,6 +1,6 @@
 package com.org.graphql.controller;
 
-import com.org.graphql.model.Student;
+import com.org.graphql.model.StudentDto;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class StudentController {
 
 	@GetMapping
-	public Student getStudent () {
-		return new Student(1, "John", "Smith");
+	public StudentDto getStudent () {
+		return new StudentDto(1, "John", "Smith");
 	}
 }
