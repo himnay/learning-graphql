@@ -39,7 +39,6 @@ public class Student {
 	private List<Subject> learningSubjects;
 
 	public Student(StudentRequestDto studentDto) {
-		this.id = studentDto.getId();
 		this.firstName = studentDto.getFirstName();
 		this.lastName = studentDto.getLastName();
 		this.email = studentDto.getEmail();
