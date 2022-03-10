@@ -11,13 +11,9 @@ import java.util.List;
 @AllArgsConstructor
 public class StudentCreateDto {
 
-    private long id;
-
     private String firstName;
 
     private String lastName;
-
-    private String fullName;
 
     private String email;
 

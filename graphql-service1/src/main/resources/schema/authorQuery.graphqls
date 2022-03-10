@@ -1,0 +1,18 @@
+extend type Query {
+    authors: [Author]!
+}
+
+type Author {
+    id: ID!
+    name: String!
+    email: String!
+    posts: [Post!]!
+}
+
+type Post {
+    id: ID!
+    title: String!
+    description: String!
+    category: String!
+    author: Author
+}

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class StudentDtoMutationResolver implements GraphQLMutationResolver {
+public class StudentMutationResolver implements GraphQLMutationResolver {
 
     private final StudentService studentService;
 

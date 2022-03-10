@@ -1,7 +1,8 @@
 type Query {
     helloWorld : String
-    names: String
-    fullName(firstName : String, lastName : String): String
+    names: [String!]!
+    message: Message!
+    fullName(firstName : String!, lastName : String!): String
     fullNameRequestObject(request : HelloWorld) : String
 }
 
@@ -9,3 +10,9 @@ input HelloWorld {
     firstName: String!
     lastName: String!
 }
+
+type Message {
+    id: ID!
+    text: String!
+}
+

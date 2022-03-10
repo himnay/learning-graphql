@@ -5,6 +5,5 @@ import lombok.Data;
 @Data
 public class HelloWorldDto {
     private String firstName;
-
     private String lastName;
 }

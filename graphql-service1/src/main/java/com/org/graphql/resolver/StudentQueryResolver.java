@@ -13,7 +13,7 @@ import static com.org.graphql.enums.SubjectEnum.All;
 import static java.util.stream.Collectors.toList;
 
 @Component
-public class StudentDtoQueryResolver implements GraphQLResolver<StudentDto> {
+public class StudentQueryResolver implements GraphQLResolver<StudentDto> {
 
     //the method name "getSubjects" has to match with field name "subjects" in StudentDto class
     public List<SubjectDto> getSubjects(StudentDto studentDto, SubjectEnum subjectType) {

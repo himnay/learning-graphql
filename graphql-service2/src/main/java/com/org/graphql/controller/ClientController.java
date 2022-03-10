@@ -4,6 +4,7 @@ import com.org.graphql.client.StudentClient;
 import com.org.graphql.model.StudentCreateDto;
 import com.org.graphql.model.StudentDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -25,7 +26,7 @@ public class ClientController {
 		return studentClient.getStudentWithGraphQLVariable(id);
 	}
 
-	@PostMapping
+	@PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public StudentDto createStudent(@RequestBody StudentCreateDto studentDto) throws IOException {
 		return studentClient.createStudent(studentDto);
 	}

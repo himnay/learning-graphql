@@ -7,7 +7,7 @@ import graphql.kickstart.spring.webclient.boot.GraphQLResponse;
 import graphql.kickstart.spring.webclient.boot.GraphQLWebClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 
 import java.io.IOException;
@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-@Service
+@Component
 @RequiredArgsConstructor
 public class StudentClient {
 
@@ -29,8 +29,9 @@ public class StudentClient {
 				.build();
 
 		GraphQLResponse response = graphQLWebClient.post(request).block();
-		log.info("Response from the service : ", response);
-		StudentDto student = response.get("getStudent", StudentDto.class);
+		if(response.getErrors().size() > 0) {
+			response.getErrors().forEach(graphQLError -> log.error("Error from the service : [ {} }", graphQLError.getMessage()));
+		}		StudentDto student = response.get("getStudent", StudentDto.class);
 		return student;
 	}
 
@@ -46,13 +47,14 @@ public class StudentClient {
 				.build();
 
 		GraphQLResponse response = graphQLWebClient.post(request).block();
-		log.info("Response from the service : ", response);
-		StudentDto student = response.get("getStudent", StudentDto.class);
+		if(response.getErrors().size() > 0) {
+			response.getErrors().forEach(graphQLError -> log.error("Error from the service : [ {} }", graphQLError.getMessage()));
+		}		StudentDto student = response.get("getStudent", StudentDto.class);
 		return student;
 	}
 
 	public StudentDto createStudent(StudentCreateDto studentDto) throws IOException {
-		String graphqlQuery = Files.readString(ResourceUtils.getFile(this.getClass().getResource("/query/student_create.txt")).toPath());
+		String graphqlQuery = Files.readString(ResourceUtils.getFile(this.getClass().getResource("/mutation/student_create.txt")).toPath());
 		Map<String, Object> variables = new HashMap<>();
 		variables.put("student", studentDto);
 
@@ -62,7 +64,9 @@ public class StudentClient {
 				.build();
 
 		GraphQLResponse response = graphQLWebClient.post(request).block();
-		log.info("Response from the service : ", response);
+		if(response.getErrors().size() > 0) {
+			response.getErrors().forEach(graphQLError -> log.error("Error from the service : [ {} }", graphQLError.getMessage()));
+		}
 		StudentDto student = response.get("createStudent", StudentDto.class);
 		return student;
 	}
