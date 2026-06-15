@@ -1,35 +1,28 @@
 package com.org.graphql.entity;
 
+import jakarta.persistence.*;
 import lombok.*;
 
-import javax.persistence.*;
-
+@Entity
+@Table(name = "subject")
 @Getter
 @Setter
-@Entity
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "subject")
 public class Subject {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
-	private Long id;
-	
-	@Column(name = "subject_name")
-	private String subjectName;
-	
-	@Column(name = "marks_obtained")
-	private Double marksObtained;
-	
-	@ManyToOne
-	@JoinColumn(name = "student_id")
-	private Student student;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	public Subject(String subjectName, Double marksObtained, Student student) {
-		this.subjectName = subjectName;
-		this.marksObtained = marksObtained;
-		this.student = student;
-	}
+    @Column(name = "subject_name")
+    private String subjectName;
+
+    @Column(name = "marks_obtained")
+    private Double marksObtained;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "student_id")
+    private Student student;
 }

@@ -1,46 +1,36 @@
 package com.org.graphql.entity;
 
-import com.org.graphql.model.StudentRequestDto;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
-import javax.persistence.*;
 import java.util.List;
 
+@Entity
+@Table(name = "student")
 @Getter
 @Setter
-@Entity
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "student")
 public class Student {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
-	private Long id;
-	
-	@Column(name = "first_name")
-	private String firstName;
-	
-	@Column(name = "last_name")
-	private String lastName;
-	
-	@Column(name = "email")
-	private String email;
-	
-	@OneToOne
-	@JoinColumn(name = "address_id")
-	private Address address;
-	
-	@OneToMany(mappedBy = "student")
-	private List<Subject> learningSubjects;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	public Student(StudentRequestDto studentDto) {
-		this.firstName = studentDto.getFirstName();
-		this.lastName = studentDto.getLastName();
-		this.email = studentDto.getEmail();
-	}
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
+
+    @Column(name = "last_name")
+    private String lastName;
+
+    @Column(name = "email")
+    private String email;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "address_id")
+    private Address address;
+
+    @OneToMany(mappedBy = "student", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Subject> learningSubjects;
 }

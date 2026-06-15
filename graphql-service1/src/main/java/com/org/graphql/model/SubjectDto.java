@@ -1,22 +1,4 @@
 package com.org.graphql.model;
 
-import com.org.graphql.entity.Subject;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@NoArgsConstructor
-public class SubjectDto {
-
-	private Long id;
-
-	private String subjectName;
-
-	private Double marksObtained;
-
-	public SubjectDto(Subject subject) {
-		this.id = subject.getId();
-		this.subjectName = subject.getSubjectName();
-		this.marksObtained = subject.getMarksObtained();
-	}
+public record SubjectDto(Long id, String subjectName, Double marksObtained) {
 }

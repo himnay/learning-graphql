@@ -1,33 +1,82 @@
-#graphiql:
-#  mapping: /app-ui             # default uri "graphiql" can be override
-
-#graphql:
-#  servlet:
-#    mapping: /student-service  # default uri "graphql" can be override
-
 spring:
+  application:
+    name: graphql-service1
+  profiles:
+    active: local
+  output:
+    ansi:
+      enabled: always
+  threads:
+    virtual:
+      enabled: true
+
   datasource:
-    url: jdbc:h2:file:/Users/himansu/learning-graphql/graphqlDB;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE   # persisted db
-#    url: jdbc:h2:mem:graphqlDB
-    driver-class-name: org.h2.Driver
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:graphql_db}
+    username: ${POSTGRES_USER:graphql}
+    password: ${POSTGRES_PASSWORD:graphql}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: GraphQLHikariPool
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
   jpa:
-    database: h2
-    database-platform: org.hibernate.dialect.H2Dialect
-    generate-ddl: true
-    open-in-view: true  # https://stackoverflow.com/questions/30549489/what-is-this-spring-jpa-open-in-view-true-property-in-spring-boot
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    open-in-view: false
     properties:
       hibernate:
-        enable_lazy_load_no_trans: true
-    show-sql: true
-  h2:
-    console:
-      enabled: true  # url:  http://localhost:8080/h2-console . make sure you change the url before you connect to db.
-      path: /h2-console
+        format_sql: true
+
   flyway:
+    enabled: true
     locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 0
+
+  graphql:
+    graphiql:
+      enabled: true
+      path: /graphiql
+    path: /graphql
+    schema:
+      locations: classpath:graphql/**
+      file-extensions: .graphqls,.gql
+
+server:
+  port: 8080
+  shutdown: graceful
 
 management:
   endpoints:
     web:
       exposure:
-        include=*:
+        include: health,info,metrics,prometheus,scheduledtasks
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+
+shedlock:
+  default-lock-at-most-for: 30s
+  default-lock-at-least-for: 10s
+  student-report:
+    cron: "0 */5 * * * *"
+    lock-at-most-for: 30s
+    lock-at-least-for: 10s
+
+logging:
+  level:
+    com.org.graphql: DEBUG
+    org.flywaydb: INFO
+    com.zaxxer.hikari: WARN

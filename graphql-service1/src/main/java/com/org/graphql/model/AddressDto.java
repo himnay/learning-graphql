@@ -1,13 +1,4 @@
 package com.org.graphql.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class AddressDto {
-    private String street;
-    private String city;
+public record AddressDto(String street, String city) {
 }

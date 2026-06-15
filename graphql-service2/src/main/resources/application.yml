@@ -1,6 +1,31 @@
-server:
-  port: 8081
+spring:
+  application:
+    name: graphql-service2
+  output:
+    ansi:
+      enabled: always
+  threads:
+    virtual:
+      enabled: true
 
 graphql:
-  client:
-    url: http://localhost:8080/graphql
+  server:
+    url: ${GRAPHQL_SERVER_URL:http://localhost:8080/graphql}
+
+server:
+  port: 8081
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}

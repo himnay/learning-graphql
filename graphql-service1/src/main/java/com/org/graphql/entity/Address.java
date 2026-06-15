@@ -1,36 +1,27 @@
 package com.org.graphql.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
-import javax.persistence.*;
-
+@Entity
+@Table(name = "address")
 @Getter
 @Setter
-@Entity
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "address")
 public class Address {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@Column(name = "street")
-	private String street;
+    @Column(name = "street", nullable = false)
+    private String street;
 
-	@Column(name = "city")
-	private String city;
-	
-	@OneToOne(mappedBy = "address")
-	private Student student;
+    @Column(name = "city", nullable = false)
+    private String city;
 
-	public Address(String street, String city) {
-		this.street = street;
-		this.city = city;
-	}
+    @OneToOne(mappedBy = "address")
+    private Student student;
 }

@@ -1,0 +1,91 @@
+type Query {
+    # Hello World examples
+    helloWorld: String
+    names: [String!]!
+    message: Message!
+    fullName(firstName: String!, lastName: String!): String
+    fullNameRequestObject(request: HelloWorldInput): String
+
+    # Student queries
+    getStudent(id: ID): StudentDto
+
+    # Author queries
+    authors: [Author]!
+}
+
+type Mutation {
+    createStudent(student: StudentInput!): StudentDto
+}
+
+# ─── Hello World ──────────────────────────────────────────────────────────────
+
+type Message {
+    id: ID!
+    text: String!
+}
+
+input HelloWorldInput {
+    firstName: String!
+    lastName: String!
+}
+
+# ─── Student ──────────────────────────────────────────────────────────────────
+
+type StudentDto {
+    id: ID
+    firstName: String
+    lastName: String
+    fullName: String
+    email: String
+    address: AddressDto
+    subjects(subjectType: SubjectEnum): [SubjectDto]
+}
+
+type AddressDto {
+    street: String
+    city: String
+}
+
+type SubjectDto {
+    id: ID
+    subjectName: String
+    marksObtained: Float
+}
+
+enum SubjectEnum {
+    All
+    Java
+    MySql
+    MongoDB
+}
+
+input StudentInput {
+    firstName: String!
+    lastName: String!
+    email: String!
+    street: String!
+    city: String!
+    subjects: [SubjectInput!]!
+}
+
+input SubjectInput {
+    subjectName: String!
+    marksObtained: Float!
+}
+
+# ─── Author / Post ────────────────────────────────────────────────────────────
+
+type Author {
+    id: ID!
+    name: String!
+    email: String!
+    posts: [Post!]!
+}
+
+type Post {
+    id: ID!
+    title: String!
+    description: String!
+    category: String!
+    author: Author
+}

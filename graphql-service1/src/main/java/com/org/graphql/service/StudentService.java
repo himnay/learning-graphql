@@ -1,12 +1,20 @@
 package com.org.graphql.service;
 
-import com.org.graphql.entity.Student;
+import com.org.graphql.enums.SubjectEnum;
+import com.org.graphql.model.AddressDto;
 import com.org.graphql.model.StudentDto;
-import com.org.graphql.model.StudentRequestDto;
+import com.org.graphql.model.StudentInput;
+import com.org.graphql.model.SubjectDto;
+
+import java.util.List;
 
 public interface StudentService {
 
-    StudentDto getStudent(long id);
+    StudentDto getStudent(Long id);
 
-    Student createStudent (StudentRequestDto studentRequestDto);
+    StudentDto createStudent(StudentInput input);
+
+    AddressDto getAddress(Long studentId);
+
+    List<SubjectDto> getSubjects(Long studentId, SubjectEnum subjectType);
 }

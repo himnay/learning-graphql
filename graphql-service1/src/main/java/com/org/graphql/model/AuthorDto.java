@@ -1,20 +1,4 @@
 package com.org.graphql.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.util.List;
-import java.util.UUID;
-
-@Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class AuthorDto {
-    private UUID id;
-    private String name;
-    private String email;
-    private List<PostDto> posts;
+public record AuthorDto(String id, String name, String email) {
 }

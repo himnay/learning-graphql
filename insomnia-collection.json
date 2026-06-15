@@ -1,0 +1,240 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-06-15T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app",
+  "resources": [
+    {
+      "_id": "wrk_graphql",
+      "_type": "workspace",
+      "name": "Learning GraphQL",
+      "description": "Spring Boot GraphQL API — service1 (server) and service2 (client)"
+    },
+    {
+      "_id": "env_base",
+      "_type": "environment",
+      "parentId": "wrk_graphql",
+      "name": "Base Environment",
+      "data": {
+        "service1Url": "http://localhost:8080",
+        "service2Url": "http://localhost:8081",
+        "graphqlUrl": "http://localhost:8080/graphql",
+        "actuatorUrl": "http://localhost:8080/actuator"
+      }
+    },
+
+    {
+      "_id": "fld_graphql_queries",
+      "_type": "request_group",
+      "parentId": "wrk_graphql",
+      "name": "GraphQL Queries (Service 1)"
+    },
+    {
+      "_id": "fld_graphql_mutations",
+      "_type": "request_group",
+      "parentId": "wrk_graphql",
+      "name": "GraphQL Mutations (Service 1)"
+    },
+    {
+      "_id": "fld_client",
+      "_type": "request_group",
+      "parentId": "wrk_graphql",
+      "name": "REST Client (Service 2)"
+    },
+    {
+      "_id": "fld_actuator",
+      "_type": "request_group",
+      "parentId": "wrk_graphql",
+      "name": "Actuator"
+    },
+
+    {
+      "_id": "req_hello_world",
+      "_type": "request",
+      "parentId": "fld_graphql_queries",
+      "name": "Hello World",
+      "method": "POST",
+      "url": "{{ _.graphqlUrl }}",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"query\":\"{ helloWorld names message { id text } }\"}"
+      },
+      "description": "Basic hello world, names list, and message queries"
+    },
+    {
+      "_id": "req_full_name",
+      "_type": "request",
+      "parentId": "fld_graphql_queries",
+      "name": "Full Name",
+      "method": "POST",
+      "url": "{{ _.graphqlUrl }}",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"query\":\"{ fullName(firstName: \\\"Himansu\\\", lastName: \\\"Nayak\\\") }\"}"
+      }
+    },
+    {
+      "_id": "req_full_name_object",
+      "_type": "request",
+      "parentId": "fld_graphql_queries",
+      "name": "Full Name (Request Object)",
+      "method": "POST",
+      "url": "{{ _.graphqlUrl }}",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"query\":\"{ fullNameRequestObject(request: { firstName: \\\"Himansu\\\", lastName: \\\"Nayak\\\" }) }\"}"
+      }
+    },
+    {
+      "_id": "req_get_student",
+      "_type": "request",
+      "parentId": "fld_graphql_queries",
+      "name": "Get Student (id=1)",
+      "method": "POST",
+      "url": "{{ _.graphqlUrl }}",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"query\":\"{ getStudent(id: \\\"1\\\") { id firstName lastName fullName email address { street city } subjects(subjectType: All) { id subjectName marksObtained } } }\"}"
+      },
+      "description": "Fetch student 1 with all fields including field resolvers"
+    },
+    {
+      "_id": "req_get_student_java",
+      "_type": "request",
+      "parentId": "fld_graphql_queries",
+      "name": "Get Student — Java Subjects Only",
+      "method": "POST",
+      "url": "{{ _.graphqlUrl }}",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"query\":\"{ getStudent(id: \\\"2\\\") { firstName subjects(subjectType: Java) { subjectName marksObtained } } }\"}"
+      }
+    },
+    {
+      "_id": "req_get_student_variable",
+      "_type": "request",
+      "parentId": "fld_graphql_queries",
+      "name": "Get Student (with Variables)",
+      "method": "POST",
+      "url": "{{ _.graphqlUrl }}",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"query\":\"query GetStudent($id: ID!, $subType: SubjectEnum) { getStudent(id: $id) { id firstName lastName fullName email address { street city } subjects(subjectType: $subType) { id subjectName marksObtained } } }\",\"variables\":{\"id\":\"1\",\"subType\":\"Java\"}}"
+      }
+    },
+    {
+      "_id": "req_get_authors",
+      "_type": "request",
+      "parentId": "fld_graphql_queries",
+      "name": "Get Authors with Posts",
+      "method": "POST",
+      "url": "{{ _.graphqlUrl }}",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"query\":\"{ authors { id name email posts { id title description category } } }\"}"
+      }
+    },
+
+    {
+      "_id": "req_create_student",
+      "_type": "request",
+      "parentId": "fld_graphql_mutations",
+      "name": "Create Student",
+      "method": "POST",
+      "url": "{{ _.graphqlUrl }}",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"query\":\"mutation CreateStudent($student: StudentInput!) { createStudent(student: $student) { id firstName lastName fullName email address { street city } subjects(subjectType: All) { subjectName marksObtained } } }\",\"variables\":{\"student\":{\"firstName\":\"Alice\",\"lastName\":\"Walker\",\"email\":\"alice@example.com\",\"street\":\"Baker St\",\"city\":\"London\",\"subjects\":[{\"subjectName\":\"Java\",\"marksObtained\":95.0},{\"subjectName\":\"MongoDB\",\"marksObtained\":88.0}]}}}"
+      },
+      "description": "Create a new student with address and subjects"
+    },
+
+    {
+      "_id": "req_client_get_student",
+      "_type": "request",
+      "parentId": "fld_client",
+      "name": "Get Student via Client (id=1)",
+      "method": "GET",
+      "url": "{{ _.service2Url }}/api/v1/students/1",
+      "headers": [{ "name": "Accept", "value": "application/json" }],
+      "description": "Service 2 proxies the GraphQL query to Service 1"
+    },
+    {
+      "_id": "req_client_get_student_filter",
+      "_type": "request",
+      "parentId": "fld_client",
+      "name": "Get Student with Subject Filter",
+      "method": "GET",
+      "url": "{{ _.service2Url }}/api/v1/students/2/filter?subjectType=Java",
+      "headers": [{ "name": "Accept", "value": "application/json" }]
+    },
+    {
+      "_id": "req_client_create_student",
+      "_type": "request",
+      "parentId": "fld_client",
+      "name": "Create Student via Client",
+      "method": "POST",
+      "url": "{{ _.service2Url }}/api/v1/students",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"firstName\":\"Bob\",\"lastName\":\"Jones\",\"email\":\"bob@example.com\",\"street\":\"Main St\",\"city\":\"New York\",\"subjects\":[{\"subjectName\":\"MySql\",\"marksObtained\":75.0}]}"
+      }
+    },
+
+    {
+      "_id": "req_health",
+      "_type": "request",
+      "parentId": "fld_actuator",
+      "name": "Health",
+      "method": "GET",
+      "url": "{{ _.actuatorUrl }}/health",
+      "description": "Spring Boot health check"
+    },
+    {
+      "_id": "req_info",
+      "_type": "request",
+      "parentId": "fld_actuator",
+      "name": "Info",
+      "method": "GET",
+      "url": "{{ _.actuatorUrl }}/info"
+    },
+    {
+      "_id": "req_metrics",
+      "_type": "request",
+      "parentId": "fld_actuator",
+      "name": "Metrics",
+      "method": "GET",
+      "url": "{{ _.actuatorUrl }}/metrics"
+    },
+    {
+      "_id": "req_prometheus",
+      "_type": "request",
+      "parentId": "fld_actuator",
+      "name": "Prometheus Metrics",
+      "method": "GET",
+      "url": "{{ _.actuatorUrl }}/prometheus",
+      "description": "Scraped by Prometheus at http://localhost:9091"
+    },
+    {
+      "_id": "req_scheduled_tasks",
+      "_type": "request",
+      "parentId": "fld_actuator",
+      "name": "Scheduled Tasks",
+      "method": "GET",
+      "url": "{{ _.actuatorUrl }}/scheduledtasks",
+      "description": "ShedLock-controlled scheduled tasks"
+    }
+  ]
+}
