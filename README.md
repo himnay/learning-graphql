@@ -205,7 +205,9 @@ Variables:
 
 ## ShedLock Distributed Scheduling
 
-`StudentReportScheduler` runs every 5 minutes (configurable) and is protected by ShedLock to prevent concurrent execution across multiple instances.
+- `StudentReportScheduler` runs every 5 minutes (configurable) and is protected by ShedLock
+- ShedLock prevents concurrent execution across multiple instances — only one node runs per cron tick
+- Lock configuration is driven by YAML properties, not hardcoded annotation values
 
 ```yaml
 shedlock:
@@ -215,14 +217,14 @@ shedlock:
     cron: "0 */5 * * * *"
 ```
 
-The shedlock table is created by Flyway migration `V3__create_shedlock_table.sql`.
+- The `shedlock` table is created by Flyway migration `V3__create_shedlock_table.sql`
+- Lock records include `lock_until`, `locked_at`, and `locked_by` (hostname:port) columns
 
 ---
 
 ## Observability
 
-- **Actuator**: `/actuator/health`, `/actuator/info`, `/actuator/metrics`, `/actuator/prometheus`
-- **Prometheus**: Scrapes both services at http://localhost:9091
-- **Grafana**: Pre-configured Prometheus datasource at http://localhost:3001
-
-Import a Spring Boot dashboard (e.g. Grafana dashboard ID **19004**) to get JVM, HTTP, and Hikari metrics.
+- **Actuator endpoints:** `/actuator/health`, `/actuator/info`, `/actuator/metrics`, `/actuator/prometheus`
+- **Prometheus:** Scrapes both services at http://localhost:9091
+- **Grafana:** Pre-configured Prometheus datasource at http://localhost:3001
+- Import a Spring Boot dashboard (e.g. Grafana dashboard ID **19004**) to get JVM, HTTP, and Hikari metrics out of the box
