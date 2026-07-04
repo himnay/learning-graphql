@@ -1,6 +1,7 @@
 package com.org.graphql.controller;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -66,6 +67,7 @@ class StudentGraphQlControllerIT {
     }
 
     @Test
+    @DisplayName("getStudent returns basic fields (first name and last name) for an existing student")
     void getStudent_returnsBasicFields() {
         var result = graphql("{ getStudent(id: \"1\") { id firstName lastName email } }");
         @SuppressWarnings("unchecked")
@@ -75,6 +77,7 @@ class StudentGraphQlControllerIT {
     }
 
     @Test
+    @DisplayName("getStudent resolves fullName via the field resolver by combining first and last name")
     void getStudent_returnsFullNameViaFieldResolver() {
         var result = graphql("{ getStudent(id: \"1\") { fullName } }");
         @SuppressWarnings("unchecked")
@@ -83,6 +86,7 @@ class StudentGraphQlControllerIT {
     }
 
     @Test
+    @DisplayName("getStudent resolves the nested address via the field resolver")
     void getStudent_returnsAddressViaFieldResolver() {
         var result = graphql("{ getStudent(id: \"1\") { address { street city } } }");
         @SuppressWarnings("unchecked")
@@ -93,6 +97,7 @@ class StudentGraphQlControllerIT {
     }
 
     @Test
+    @DisplayName("getStudent filters subjects to only those matching the Java subject type")
     void getStudent_returnsSubjectsFilteredByJava() {
         var result = graphql("{ getStudent(id: \"1\") { subjects(subjectType: Java) { subjectName } } }");
         @SuppressWarnings("unchecked")
@@ -104,6 +109,7 @@ class StudentGraphQlControllerIT {
     }
 
     @Test
+    @DisplayName("createStudent mutation persists a new student and returns the generated id")
     void createStudent_persistsAndReturns() {
         String mutation = """
                 mutation CreateStudent($student: StudentInput!) {
@@ -126,12 +132,14 @@ class StudentGraphQlControllerIT {
     }
 
     @Test
+    @DisplayName("getStudent returns a GraphQL error when the student id does not exist")
     void getStudent_notFound_returnsError() {
         var result = graphql("{ getStudent(id: \"9999\") { firstName } }");
         assertThat(result.get("errors")).isNotNull();
     }
 
     @Test
+    @DisplayName("helloWorld query returns the expected greeting message")
     void helloWorld_returnsGreeting() {
         var result = graphql("{ helloWorld }");
         @SuppressWarnings("unchecked")
@@ -140,6 +148,7 @@ class StudentGraphQlControllerIT {
     }
 
     @Test
+    @DisplayName("authors query returns a non-empty list of authors")
     void authors_returnsAuthorList() {
         var result = graphql("{ authors { id name email } }");
         @SuppressWarnings("unchecked")
