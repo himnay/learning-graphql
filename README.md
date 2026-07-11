@@ -1,5 +1,7 @@
 # Learning GraphQL
 
+<img src="image/graphql-logo.png" alt="GraphQL" width="90"/>
+
 Production-grade Spring Boot GraphQL demo — **Spring for GraphQL**, PostgreSQL, Flyway, ShedLock, Prometheus, Grafana, TestContainers, JUnit 5.
 
 This repository is deliberately built as **two independent Spring Boot applications** so that the same domain (a `Student` with an `Address` and `Subjects`) can be studied from both sides of a GraphQL boundary: `graphql-service1` implements the schema and resolvers (the **server**), and `graphql-service2` calls that schema over HTTP and republishes the result as plain REST (a **client** / BFF). The rest of this document is a from-the-source deep dive into how GraphQL actually works in this codebase — not just how to run it.
