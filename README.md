@@ -30,7 +30,8 @@ This repository is deliberately built as **two independent Spring Boot applicati
 
 ---
 
-## Tech Stack
+<a id="tech-stack"></a>
+## 1. 🧰 Tech Stack
 
 | Layer              | Technology                              |
 |--------------------|------------------------------------------|
@@ -46,7 +47,8 @@ This repository is deliberately built as **two independent Spring Boot applicati
 
 ---
 
-## Project Structure
+<a id="project-structure"></a>
+## 2. 🏗️ Project Structure
 
 ```
 learning-graphql/
@@ -84,7 +86,8 @@ learning-graphql/
 
 ---
 
-## Design Patterns (Gang of Four)
+<a id="design-patterns-gang-of-four"></a>
+## 3. 🏗️ Design Patterns (Gang of Four)
 
 | Pattern         | Where Applied                                                       |
 |-----------------|-----------------------------------------------------------------------|
@@ -96,7 +99,8 @@ learning-graphql/
 
 ---
 
-## What GraphQL Is, and How It Differs From REST
+<a id="what-graphql-is-and-how-it-differs-from-rest"></a>
+## 4. 🌐 What GraphQL Is, and How It Differs From REST
 
 GraphQL is a **query language for APIs** plus a server-side runtime for executing those queries against a **type system** that you define for your data (the *schema*). It was designed by Facebook to solve two chronic REST problems: **over-fetching** (a REST response returns whatever fields the endpoint author decided to include, whether the client needs them or not) and **under-fetching** (assembling a single UI view often means calling several REST endpoints and stitching the responses together on the client).
 
@@ -133,7 +137,8 @@ A **resolver** (Spring calls it a *data fetcher* under the hood, wrapping GraphQ
 
 ---
 
-## The Schema, Field by Field
+<a id="the-schema-field-by-field"></a>
+## 5. 🗄️ The Schema, Field by Field
 
 The full schema, from `graphql-service1/src/main/resources/graphql/schema.graphqls`:
 
@@ -236,7 +241,8 @@ Reading this SDL closely tells you a lot before you even look at Java code:
 
 ---
 
-## Schema Type Relationships (ER Diagram)
+<a id="schema-type-relationships-er-diagram"></a>
+## 6. 🗄️ Schema Type Relationships (ER Diagram)
 
 ```mermaid
 erDiagram
@@ -300,7 +306,8 @@ Notes on reading this diagram as an ER-style chart applied to a GraphQL schema: 
 
 ---
 
-## How Spring for GraphQL Wires a Schema to Code
+<a id="how-spring-for-graphql-wires-a-schema-to-code"></a>
+## 7. 🗄️ How Spring for GraphQL Wires a Schema to Code
 
 Spring for GraphQL (the `spring-boot-starter-graphql` dependency in `graphql-service1/pom.xml`) is Spring's official integration on top of the reference `graphql-java` engine. At startup it:
 
@@ -320,7 +327,8 @@ public record StudentDto(Long id, String firstName, String lastName, String emai
 
 ---
 
-## Resolver Architecture in This Codebase
+<a id="resolver-architecture-in-this-codebase"></a>
+## 8. 🏗️ Resolver Architecture in This Codebase
 
 ### `HelloWorldGraphQlController` — the teaching controller
 
@@ -405,7 +413,8 @@ public static StudentDto toDto(Student student) {
 
 ---
 
-## Query Execution Walkthrough (Sequence Diagram)
+<a id="query-execution-walkthrough-sequence-diagram"></a>
+## 9. 🔹 Query Execution Walkthrough (Sequence Diagram)
 
 Representative query — a client asks for a student's basic fields, computed full name, nested address, and Java-filtered subjects, all in one request:
 
@@ -473,7 +482,8 @@ The diagram deliberately shows **three separate `findByIdWithDetails(1)` calls f
 
 ---
 
-## The N+1 Problem, and Whether DataLoader Is Used Here
+<a id="the-n1-problem-and-whether-dataloader-is-used-here"></a>
+## 10. 🔹 The N+1 Problem, and Whether DataLoader Is Used Here
 
 **The problem, in general:** in GraphQL, resolving a list of parent objects and then resolving a child field *on each one* naturally produces one query for the list plus one query *per item* for the child field — "N+1" queries for N items, instead of 2 (or 1, with a join). This is the single most infamous GraphQL server-side performance trap, because the schema encourages exactly the nesting pattern that triggers it, and it's invisible from the client's side (the query still "looks like" one request).
 
@@ -519,7 +529,8 @@ Spring for GraphQL transparently wires `@BatchMapping` methods into a `DataLoade
 
 ---
 
-## How the Two Services Relate
+<a id="how-the-two-services-relate"></a>
+## 11. 🔹 How the Two Services Relate
 
 **They are two separate, independently-runnable Spring Boot applications — not a federated or composed GraphQL graph.** There is no Apollo Federation, no schema stitching, no `@link`/`@key` directive, and no gateway process anywhere in this repo (confirmed by grepping both modules for federation-related annotations/directives — none exist). Each module has its own `pom.xml`, its own `main()` (`GraphqlService1Application`, `GraphqlService2Application`), its own port, and its own `application.yml`.
 
@@ -591,7 +602,8 @@ sequenceDiagram
 
 ---
 
-## Error Handling
+<a id="error-handling"></a>
+## 12. ⚠️ Error Handling
 
 `GraphQlExceptionHandler` extends Spring for GraphQL's `DataFetcherExceptionResolverAdapter` to translate Java exceptions thrown inside resolvers into GraphQL-spec-shaped errors (each with a `message`, a `path` pointing at the failing field, and an `extensions.classification`):
 
@@ -615,7 +627,8 @@ Because every field in `StudentDto` is nullable in the schema, a `getStudent` qu
 
 ---
 
-## Quick Start
+<a id="quick-start"></a>
+## 13. 🚀 Quick Start
 
 ### 1. Start infrastructure
 
@@ -659,7 +672,8 @@ mvn test
 
 ---
 
-## GraphQL API Reference
+<a id="graphql-api-reference"></a>
+## 14. 📚 GraphQL API Reference
 
 ### Schema
 
@@ -744,7 +758,8 @@ Returns `data.getStudent: null` plus a populated top-level `errors` array (see [
 
 ---
 
-## REST API (Service 2 — GraphQL Client)
+<a id="rest-api-service-2--graphql-client"></a>
+## 15. 🌐 REST API (Service 2 — GraphQL Client)
 
 | Method | Path                              | Description                                   |
 |--------|-------------------------------------|--------------------------------------------------|
@@ -756,7 +771,8 @@ Each of these routes is a thin `ClientController` handler that delegates straigh
 
 ---
 
-## ShedLock Distributed Scheduling
+<a id="shedlock-distributed-scheduling"></a>
+## 16. ⏰ ShedLock Distributed Scheduling
 
 - `StudentReportScheduler` runs every 5 minutes (configurable) and is protected by ShedLock
 - ShedLock prevents concurrent execution across multiple instances — only one node runs per cron tick
@@ -775,7 +791,8 @@ shedlock:
 
 ---
 
-## Observability
+<a id="observability"></a>
+## 17. 📈 Observability
 
 - **Actuator endpoints:** `/actuator/health`, `/actuator/info`, `/actuator/metrics`, `/actuator/prometheus`
 - **Prometheus:** Scrapes both services at http://localhost:9091
