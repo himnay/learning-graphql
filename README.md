@@ -232,12 +232,16 @@ type Post {
 
 Reading this SDL closely tells you a lot before you even look at Java code:
 
+<ul>
+
 - **`Query`** is the schema's single read root — every query the API supports (`helloWorld`, `getStudent`, `authors`, etc.) is a field on this one type. There's no equivalent of "one query type per resource" the way REST has "one route per resource."
 - **`Mutation`** is the single write root. This codebase defines exactly one mutation, `createStudent`, which returns the created `StudentDto` — a common GraphQL convention of "return the thing you just changed" so the client can immediately re-render it without a follow-up fetch.
 - **Nullability is explicit and load-bearing.** `[String!]!` (used by `names`) means "a non-null list of non-null strings" — GraphQL will error instead of returning `null` in that list. Compare to `getStudent(id: ID): StudentDto`, where both the argument and the return type are nullable — the API is explicitly allowed to return `null` for a request with no `id`, and `StudentDto`'s own fields (`id`, `firstName`, `lastName`, ...) are *all* nullable too, meaning partial results (and partial errors, see below) are legal for that type.
 - **`subjects(subjectType: SubjectEnum): [SubjectDto]` is a field with its own argument.** This is a distinctly GraphQL idiom that has no direct REST analogue: a *nested* field inside a larger response can itself take parameters, letting a client filter a sub-list (e.g. "only this student's Java marks") without a second round trip or a bespoke `?subject=` query-string endpoint.
 - **`input` vs `type`.** `HelloWorldInput`, `StudentInput`, and `SubjectInput` are declared with the `input` keyword rather than `type` — GraphQL requires this distinct keyword for anything used as an argument value (as opposed to returned data), and input types cannot have their own resolvers, only plain scalar/input fields.
 - **`Author`/`Post` form a two-way relationship inside the schema** (`Author.posts: [Post!]!` and `Post.author: Author`), independent of the `Student` domain — the schema is effectively hosting two unrelated demo domains (`Student`/`Address`/`Subject` and `Author`/`Post`) side by side under one `Query` root, alongside a third "hello world" teaching domain (`Message`, `fullName`, etc.).
+
+</ul>
 
 ---
 
@@ -378,10 +382,14 @@ public List<SubjectDto> subjects(StudentDto student, @Argument SubjectEnum subje
 
 This one class demonstrates every resolver style Spring for GraphQL offers:
 
+<ul>
+
 - **`@QueryMapping`** — root-level read (`getStudent`). Method name matches the schema field name by convention.
 - **`@MutationMapping`** — root-level write (`createStudent`).
 - **`@SchemaMapping(typeName = "StudentDto", field = "...")`** — a resolver for a field on a *non-root* type. The first method parameter (`StudentDto student`) is always the **parent object** — the value the engine just produced for `StudentDto` itself — from which the resolver derives the child field's value. This is GraphQL's defining execution shape: resolvers are chained, each one receiving its parent's already-resolved value.
 - **Field-level `@Argument`** — `subjects(StudentDto student, @Argument SubjectEnum subjectType)` shows a nested field resolver receiving *both* its parent object and its own GraphQL argument (`subjectType`), letting `getStudent(id:"1") { subjects(subjectType: Java) { ... } }` filter subjects without a separate query.
+
+</ul>
 
 ### `AuthorGraphQlController` — a second, independent object graph
 
@@ -489,6 +497,8 @@ The diagram deliberately shows **three separate `findByIdWithDetails(1)` calls f
 
 **Where it appears in this codebase:**
 
+<ul>
+
 - `Query.authors` (`AuthorGraphQlController.authors()`) returns a `List<AuthorDto>` of size N in a single call.
 - For **every** author in that list, the engine independently invokes `@SchemaMapping(typeName = "Author", field = "posts")` — i.e. `AuthorService.getPostsByAuthorId(author.id())` is called once per author, not once for all authors. A query like:
 
@@ -498,6 +508,8 @@ The diagram deliberately shows **three separate `findByIdWithDetails(1)` calls f
 
   triggers **1 call to `getAllAuthors()` + N calls to `getPostsByAuthorId()`** — textbook N+1.
 - The same shape exists in reverse for `Post.author` (`AuthorService.getAuthorById(post.authorId())` called once per post).
+
+</ul>
 
 **Confirmed by reading the code: there is no batching in this repository.** A repo-wide search for `DataLoader`, `BatchLoader`, and Spring for GraphQL's `@BatchMapping` annotation turns up **zero matches**. Every `@SchemaMapping` resolver in both `StudentGraphQlController` and `AuthorGraphQlController` resolves exactly one parent object at a time, with no request-scoped caching or batching layer in front of `AuthorService`/`StudentService`.
 
@@ -536,6 +548,8 @@ Spring for GraphQL transparently wires `@BatchMapping` methods into a `DataLoade
 
 The relationship between them is purely a **runtime HTTP client/server relationship**, and only in one direction:
 
+<ul>
+
 - **`graphql-service1`** (port `8080`) owns the schema, the database, and every resolver. It is a complete, self-sufficient GraphQL API on its own — you could query it directly from `curl`, Postman, GraphiQL, or any GraphQL client with zero knowledge of `graphql-service2`'s existence.
 - **`graphql-service2`** (port `8081`) has **no schema of its own** (its `pom.xml` even comments the dependency as `"GraphQL client (no server schema required)"`). It depends only on `spring-graphql`'s client support, not `spring-boot-starter-graphql`. At startup, `GraphQLClientConfig` builds a reactive `HttpGraphQlClient` pointed at `graphql-service1`'s endpoint via the externalized property `graphql.server.url` (defaulting to `http://localhost:8080/graphql`):
 
@@ -571,6 +585,8 @@ The relationship between them is purely a **runtime HTTP client/server relations
   ```
 
 - `ClientController` (a `@RestController`) exposes plain REST routes (`GET /api/v1/students/{id}`, `GET /api/v1/students/{id}/filter`, `POST /api/v1/students`) that simply delegate to `StudentClient`, reactively (`Mono<StudentDto>`), returning the GraphQL result as a REST JSON body.
+
+</ul>
 
 In short: **`graphql-service2` is a REST-facing gateway / BFF in front of `graphql-service1`'s GraphQL API**, useful for demonstrating what it looks like to *consume* a GraphQL API from a typed Java client, and for showing that a GraphQL backend can sit comfortably behind a conventional REST facade for callers who'd rather not speak GraphQL directly. It is not a second resolver-bearing node in the same graph.
 
@@ -649,9 +665,13 @@ cd graphql-service1
 mvn spring-boot:run
 ```
 
+<ul>
+
 - GraphQL endpoint: http://localhost:8080/graphql
 - GraphiQL IDE: http://localhost:8080/graphiql
 - Actuator: http://localhost:8080/actuator
+
+</ul>
 
 ### 3. Run service2 (GraphQL client)
 
@@ -660,8 +680,12 @@ cd graphql-service2
 mvn spring-boot:run
 ```
 
+<ul>
+
 - REST API: http://localhost:8081/api/v1/students
 - Actuator: http://localhost:8081/actuator
+
+</ul>
 
 ### 4. Run tests
 
@@ -774,9 +798,13 @@ Each of these routes is a thin `ClientController` handler that delegates straigh
 <a id="shedlock-distributed-scheduling"></a>
 ## 16. ⏰ ShedLock Distributed Scheduling
 
+<ul>
+
 - `StudentReportScheduler` runs every 5 minutes (configurable) and is protected by ShedLock
 - ShedLock prevents concurrent execution across multiple instances — only one node runs per cron tick
 - Lock configuration is driven by YAML properties, not hardcoded annotation values
+
+</ul>
 
 ```yaml
 shedlock:
@@ -786,15 +814,23 @@ shedlock:
     cron: "0 */5 * * * *"
 ```
 
+<ul>
+
 - The `shedlock` table is created by Flyway migration `V3__create_shedlock_table.sql`
 - Lock records include `lock_until`, `locked_at`, and `locked_by` (hostname:port) columns
+
+</ul>
 
 ---
 
 <a id="observability"></a>
 ## 17. 📈 Observability
 
+<ul>
+
 - **Actuator endpoints:** `/actuator/health`, `/actuator/info`, `/actuator/metrics`, `/actuator/prometheus`
 - **Prometheus:** Scrapes both services at http://localhost:9091
 - **Grafana:** Pre-configured Prometheus datasource at http://localhost:3001
 - Import a Spring Boot dashboard (e.g. Grafana dashboard ID **19004**) to get JVM, HTTP, and Hikari metrics out of the box
+
+</ul>
