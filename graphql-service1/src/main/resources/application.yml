@@ -40,11 +40,12 @@ spring:
     graphiql:
       enabled: true
       path: /graphiql
-    path: /graphql
     schema:
       locations: classpath:graphql/**
       file-extensions: .graphqls,.gql
 
+    http:
+      path: /graphql
 server:
   port: 8080
   shutdown: graceful
