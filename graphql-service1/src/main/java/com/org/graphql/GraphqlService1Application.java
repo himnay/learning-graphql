@@ -6,7 +6,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class GraphqlService1Application {
+class GraphqlService1Application {
 
     public static void main(String[] args) {
         SpringApplication.run(GraphqlService1Application.class, args);
