@@ -33,17 +33,17 @@ This repository is deliberately built as **two independent Spring Boot applicati
 <a id="tech-stack"></a>
 ## 1. 🧰 Tech Stack
 
-| Layer              | Technology                              |
-|--------------------|------------------------------------------|
-| Language           | Java 25 (virtual threads)               |
-| Framework          | Spring Boot 4.1.0                       |
-| GraphQL            | Spring for GraphQL (spring-graphql)     |
-| Database           | PostgreSQL 16                           |
-| Migrations         | Flyway                                  |
-| Distributed Locks  | ShedLock 7.7.0 (JDBC provider)          |
-| Observability      | Micrometer + Prometheus + Grafana       |
-| Testing            | JUnit 5, TestContainers                 |
-| Build              | Maven 3.9+                              |
+| Layer             | Technology                          |
+|-------------------|-------------------------------------|
+| Language          | Java 25 (virtual threads)           |
+| Framework         | Spring Boot 4.1.0                   |
+| GraphQL           | Spring for GraphQL (spring-graphql) |
+| Database          | PostgreSQL 16                       |
+| Migrations        | Flyway                              |
+| Distributed Locks | ShedLock 7.7.0 (JDBC provider)      |
+| Observability     | Micrometer + Prometheus + Grafana   |
+| Testing           | JUnit 5, TestContainers             |
+| Build             | Maven 3.9+                          |
 
 ---
 
@@ -89,13 +89,13 @@ learning-graphql/
 <a id="design-patterns-gang-of-four"></a>
 ## 3. 🏗️ Design Patterns (Gang of Four)
 
-| Pattern         | Where Applied                                                       |
-|-----------------|-----------------------------------------------------------------------|
-| Factory Method  | `StudentMapper.toDto()`, `SubjectFilterStrategy.of()`               |
-| Template Method | `AbstractScheduler.executeScheduledTask()` → `performTask()`        |
-| Strategy        | `SubjectFilterStrategy` — pluggable subject filtering               |
-| Builder         | Lombok `@Builder` on entities; Java 25 record pattern on DTOs       |
-| Singleton       | Spring `@Bean` singletons for all services, repositories, configs   |
+| Pattern         | Where Applied                                                     |
+|-----------------|-------------------------------------------------------------------|
+| Factory Method  | `StudentMapper.toDto()`, `SubjectFilterStrategy.of()`             |
+| Template Method | `AbstractScheduler.executeScheduledTask()` → `performTask()`      |
+| Strategy        | `SubjectFilterStrategy` — pluggable subject filtering             |
+| Builder         | Lombok `@Builder` on entities; Java 25 record pattern on DTOs     |
+| Singleton       | Spring `@Bean` singletons for all services, repositories, configs |
 
 ---
 
@@ -106,15 +106,15 @@ GraphQL is a **query language for APIs** plus a server-side runtime for executin
 
 The concrete differences you can see by comparing this repository's two halves:
 
-| Aspect                | Traditional REST (would look like)                                    | GraphQL (as actually implemented here)                                                        |
-|------------------------|-------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
-| Endpoints              | Many URLs: `/students/{id}`, `/students/{id}/address`, `/students/{id}/subjects` | **One** endpoint for everything: `POST /graphql` (see `application.yml`: `spring.graphql.path: /graphql`) |
-| Shape of the response  | Fixed by the server; the client takes what it's given                  | **Chosen by the client** — a query for `{ getStudent(id:"1") { firstName } }` returns *only* `firstName`, nothing else |
-| Contract               | Usually described informally (OpenAPI/Swagger, docs, tribal knowledge) | **Formally typed schema** (`schema.graphqls`), machine-readable, introspectable, validated at request time |
-| Nested/related data    | Requires multiple round trips (`GET /students/1`, then `GET /addresses/5`) | Resolved **server-side in one round trip** — `address { street city }` is nested straight into the `getStudent` query |
-| Versioning             | `/v1/students`, `/v2/students`, ...                                    | Schema **evolves additively** — new fields/types are added without breaking existing queries |
-| Discoverability        | Read the docs / hit the endpoint and see                               | **Introspection** — the schema itself can be queried, and tools like **GraphiQL** (enabled at `/graphiql` — see `spring.graphql.graphiql.enabled: true`) auto-generate a docs explorer and autocomplete from it |
-| Mutating data          | HTTP verbs (`POST`, `PUT`, `PATCH`, `DELETE`) carry the "intent"        | A single `Mutation` root type carries intent explicitly — e.g. `createStudent(student: StudentInput!): StudentDto` |
+| Aspect                | Traditional REST (would look like)                                               | GraphQL (as actually implemented here)                                                                                                                                                                          |
+|-----------------------|----------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Endpoints             | Many URLs: `/students/{id}`, `/students/{id}/address`, `/students/{id}/subjects` | **One** endpoint for everything: `POST /graphql` (see `application.yml`: `spring.graphql.path: /graphql`)                                                                                                       |
+| Shape of the response | Fixed by the server; the client takes what it's given                            | **Chosen by the client** — a query for `{ getStudent(id:"1") { firstName } }` returns *only* `firstName`, nothing else                                                                                          |
+| Contract              | Usually described informally (OpenAPI/Swagger, docs, tribal knowledge)           | **Formally typed schema** (`schema.graphqls`), machine-readable, introspectable, validated at request time                                                                                                      |
+| Nested/related data   | Requires multiple round trips (`GET /students/1`, then `GET /addresses/5`)       | Resolved **server-side in one round trip** — `address { street city }` is nested straight into the `getStudent` query                                                                                           |
+| Versioning            | `/v1/students`, `/v2/students`, ...                                              | Schema **evolves additively** — new fields/types are added without breaking existing queries                                                                                                                    |
+| Discoverability       | Read the docs / hit the endpoint and see                                         | **Introspection** — the schema itself can be queried, and tools like **GraphiQL** (enabled at `/graphiql` — see `spring.graphql.graphiql.enabled: true`) auto-generate a docs explorer and autocomplete from it |
+| Mutating data         | HTTP verbs (`POST`, `PUT`, `PATCH`, `DELETE`) carry the "intent"                 | A single `Mutation` root type carries intent explicitly — e.g. `createStudent(student: StudentInput!): StudentDto`                                                                                              |
 
 Concretely, `graphql-service2` in this repo demonstrates the "many REST endpoints in front of one GraphQL endpoint" pattern in reverse: it exposes REST routes (`GET /api/v1/students/{id}`, `GET /api/v1/students/{id}/filter`, `POST /api/v1/students`) that *each* internally send a hand-written GraphQL document to `graphql-service1`'s single `/graphql` endpoint. This is a common "backend-for-frontend" (BFF) shape: REST at the edge for simple client integration, GraphQL underneath for flexible, typed data fetching.
 
@@ -653,7 +653,7 @@ docker-compose up -d
 ```
 
 | Service    | URL                                 |
-|------------|--------------------------------------|
+|------------|-------------------------------------|
 | PostgreSQL | `localhost:5432`                    |
 | Prometheus | http://localhost:9091               |
 | Grafana    | http://localhost:3001 (admin/admin) |
@@ -785,11 +785,11 @@ Returns `data.getStudent: null` plus a populated top-level `errors` array (see [
 <a id="rest-api-service-2--graphql-client"></a>
 ## 15. 🌐 REST API (Service 2 — GraphQL Client)
 
-| Method | Path                              | Description                                   |
-|--------|-------------------------------------|--------------------------------------------------|
-| GET    | `/api/v1/students/{id}`           | Fetch student via GraphQL client              |
-| GET    | `/api/v1/students/{id}/filter`    | Fetch with subject filter `?subjectType=Java` |
-| POST   | `/api/v1/students`                | Create student via GraphQL mutation           |
+| Method | Path                           | Description                                   |
+|--------|--------------------------------|-----------------------------------------------|
+| GET    | `/api/v1/students/{id}`        | Fetch student via GraphQL client              |
+| GET    | `/api/v1/students/{id}/filter` | Fetch with subject filter `?subjectType=Java` |
+| POST   | `/api/v1/students`             | Create student via GraphQL mutation           |
 
 Each of these routes is a thin `ClientController` handler that delegates straight to `StudentClient`, which in turn sends a fixed GraphQL document (see [How the Two Services Relate](#how-the-two-services-relate)) to `graphql-service1` over HTTP and reactively maps the JSON response into `StudentDto`.
 
