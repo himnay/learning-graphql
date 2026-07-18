@@ -4,12 +4,12 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "subject")
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "subject")
 public class Subject {
 
     @Id
@@ -22,7 +22,7 @@ public class Subject {
     @Column(name = "marks_obtained")
     private Double marksObtained;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id")
+    @ManyToOne(fetch = FetchType.LAZY)
     private Student student;
 }

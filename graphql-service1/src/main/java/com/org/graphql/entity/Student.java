@@ -6,12 +6,12 @@ import lombok.*;
 import java.util.List;
 
 @Entity
-@Table(name = "student")
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "student")
 public class Student {
 
     @Id
@@ -27,8 +27,8 @@ public class Student {
     @Column(name = "email")
     private String email;
 
-    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id")
+    @OneToOne(fetch = FetchType.LAZY)
     private Address address;
 
     @OneToMany(mappedBy = "student", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

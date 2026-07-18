@@ -6,12 +6,12 @@ import lombok.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "post")
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "post")
 public class Post {
 
     @Id
@@ -27,7 +27,7 @@ public class Post {
     @Column
     private String category;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
+    @ManyToOne(fetch = FetchType.LAZY)
     private Author author;
 }

@@ -7,11 +7,11 @@ import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 
 public record StudentInput(
-        @NotBlank String firstName,
-        @NotBlank String lastName,
-        @Email @NotBlank String email,
-        @NotBlank String street,
         @NotBlank String city,
+        @NotBlank String street,
+        @NotBlank String lastName,
+        @NotBlank String firstName,
+        @Email @NotBlank String email,
         @NotEmpty List<SubjectInput> subjects
 ) {
 }

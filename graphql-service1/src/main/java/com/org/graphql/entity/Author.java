@@ -7,12 +7,12 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "author")
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "author")
 public class Author {
 
     @Id
