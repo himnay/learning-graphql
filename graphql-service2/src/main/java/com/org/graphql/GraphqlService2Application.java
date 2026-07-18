@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 class GraphqlService2Application {
 
+    /** Application entry point. */
     public static void main(String[] args) {
         SpringApplication.run(GraphqlService2Application.class, args);
     }

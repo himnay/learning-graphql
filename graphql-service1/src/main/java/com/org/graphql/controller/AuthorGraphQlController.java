@@ -16,16 +16,19 @@ public class AuthorGraphQlController {
 
     private final AuthorService authorService;
 
+    /** Returns the authors. */
     @QueryMapping
     public List<AuthorDto> authors() {
         return authorService.getAllAuthors();
     }
 
+    /** Returns the posts. */
     @SchemaMapping(typeName = "Author", field = "posts")
     public List<PostDto> posts(AuthorDto author) {
         return authorService.getPostsByAuthorId(author.id());
     }
 
+    /** Returns the author. */
     @SchemaMapping(typeName = "Post", field = "author")
     public AuthorDto author(PostDto post) {
         return authorService.getAuthorById(post.authorId());

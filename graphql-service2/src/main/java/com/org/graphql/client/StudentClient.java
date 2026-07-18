@@ -50,6 +50,7 @@ public class StudentClient {
                 .toEntity(StudentDto.class);
     }
 
+    /** Creates student. */
     public Mono<StudentDto> createStudent(StudentInput input) {
         log.info("Creating student via GraphQL client [firstName={}]", input.getFirstName());
         return graphQlClient

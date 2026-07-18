@@ -12,6 +12,7 @@ public class GraphQLClientConfig {
     @Value("${graphql.server.url:http://localhost:8080/graphql}")
     private String graphQlServerUrl;
 
+    /** Defines the graph ql client bean. */
     @Bean
     public HttpGraphQlClient graphQlClient() {
         WebClient webClient = WebClient.builder()

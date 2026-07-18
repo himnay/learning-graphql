@@ -16,6 +16,7 @@ import javax.sql.DataSource;
 )
 public class ShedlockConfig {
 
+    /** Defines the lock provider bean. */
     @Bean
     public LockProvider lockProvider(DataSource dataSource) {
         return new JdbcTemplateLockProvider(

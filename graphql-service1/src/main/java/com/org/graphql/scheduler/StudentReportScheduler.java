@@ -15,6 +15,7 @@ public class StudentReportScheduler extends AbstractScheduler {
 
     private final StudentRepository studentRepository;
 
+    /** Runs. */
     @Scheduled(cron = "${shedlock.student-report.cron:0 */5 * * * *}")
     @SchedulerLock(
             name = "studentReportScheduler",

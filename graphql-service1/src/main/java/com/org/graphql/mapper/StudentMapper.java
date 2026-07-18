@@ -11,6 +11,7 @@ public final class StudentMapper {
 
     private StudentMapper() {}
 
+    /** Converts this object to dto. */
     public static StudentDto toDto(Student student) {
         return new StudentDto(
                 student.getId(),
@@ -20,10 +21,12 @@ public final class StudentMapper {
         );
     }
 
+    /** Converts this object to subject dto. */
     public static SubjectDto toSubjectDto(Subject subject) {
         return new SubjectDto(subject.getId(), subject.getSubjectName(), subject.getMarksObtained());
     }
 
+    /** Converts this object to address dto. */
     public static AddressDto toAddressDto(Address address) {
         return new AddressDto(address.getStreet(), address.getCity());
     }

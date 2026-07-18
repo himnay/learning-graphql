@@ -26,6 +26,7 @@ public class ClientController {
         return studentClient.getStudentWithSubjectFilter(id, subjectType);
     }
 
+    /** Creates student. */
     @PostMapping
     public Mono<StudentDto> createStudent(@RequestBody StudentInput input) {
         return studentClient.createStudent(input);

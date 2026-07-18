@@ -12,26 +12,31 @@ import java.util.UUID;
 @Controller
 public class HelloWorldGraphQlController {
 
+    /** Returns the hello world. */
     @QueryMapping
     public String helloWorld() {
         return "Hello, GraphQL World!";
     }
 
+    /** Returns the names. */
     @QueryMapping
     public List<String> names() {
         return List.of("Himansu", "Ujwol", "Sunny");
     }
 
+    /** Returns the message. */
     @QueryMapping
     public MessageDto message() {
         return new MessageDto(UUID.randomUUID().toString(), "Today weather is sunny");
     }
 
+    /** Returns the full name. */
     @QueryMapping
     public String fullName(@Argument String firstName, @Argument String lastName) {
         return firstName + " " + lastName;
     }
 
+    /** Returns the full name request object. */
     @QueryMapping
     public String fullNameRequestObject(@Argument HelloWorldInput request) {
         return request.firstName() + " " + request.lastName();

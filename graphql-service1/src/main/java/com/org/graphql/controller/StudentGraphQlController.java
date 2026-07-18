@@ -29,22 +29,26 @@ public class StudentGraphQlController {
         return studentService.getStudent(id);
     }
 
+    /** Creates student. */
     @MutationMapping
     public StudentDto createStudent(@Argument StudentInput student) {
         log.info("GraphQL mutation: createStudent [firstName={}]", student.firstName());
         return studentService.createStudent(student);
     }
 
+    /** Returns the full name. */
     @SchemaMapping(typeName = "StudentDto", field = "fullName")
     public String fullName(StudentDto student) {
         return student.firstName() + " " + student.lastName();
     }
 
+    /** Returns the address. */
     @SchemaMapping(typeName = "StudentDto", field = "address")
     public AddressDto address(StudentDto student) {
         return studentService.getAddress(student.id());
     }
 
+    /** Returns the subjects. */
     @SchemaMapping(typeName = "StudentDto", field = "subjects")
     public List<SubjectDto> subjects(StudentDto student, @Argument SubjectEnum subjectType) {
         return studentService.getSubjects(student.id(), subjectType);
