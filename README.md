@@ -1,4 +1,4 @@
-# <span style="color:hsl(236,68%,44%)">Learning GraphQL</span>
+# <span style="color:hsl(236,80%,58%)">Learning GraphQL</span>
 
 <img src="image/graphql-logo.png" alt="GraphQL" width="90"/>
 
@@ -8,7 +8,7 @@ This repository is deliberately built as **two independent Spring Boot applicati
 
 ---
 
-## <span style="color:hsl(248,68%,44%)">Table of Contents</span>
+## <span style="color:hsl(14,80%,58%)">Table of Contents</span>
 
 1. 🧰 [Tech Stack](#tech-stack)
 2. 🏗️ [Project Structure](#project-structure)
@@ -31,7 +31,7 @@ This repository is deliberately built as **two independent Spring Boot applicati
 ---
 
 <a id="tech-stack"></a>
-## <span style="color:hsl(259,68%,44%)">1. 🧰 Tech Stack</span>
+## <span style="color:hsl(151,80%,58%)">1. 🧰 Tech Stack</span>
 
 | Layer             | Technology                          |
 |-------------------|-------------------------------------|
@@ -48,7 +48,7 @@ This repository is deliberately built as **two independent Spring Boot applicati
 ---
 
 <a id="project-structure"></a>
-## <span style="color:hsl(271,68%,44%)">2. 🏗️ Project Structure</span>
+## <span style="color:hsl(289,80%,58%)">2. 🏗️ Project Structure</span>
 
 ```
 learning-graphql/
@@ -87,7 +87,7 @@ learning-graphql/
 ---
 
 <a id="design-patterns-gang-of-four"></a>
-## <span style="color:hsl(282,68%,44%)">3. 🏗️ Design Patterns (Gang of Four)</span>
+## <span style="color:hsl(66,80%,50%)">3. 🏗️ Design Patterns (Gang of Four)</span>
 
 | Pattern         | Where Applied                                                     |
 |-----------------|-------------------------------------------------------------------|
@@ -100,7 +100,7 @@ learning-graphql/
 ---
 
 <a id="what-graphql-is-and-how-it-differs-from-rest"></a>
-## <span style="color:hsl(294,68%,44%)">4. 🌐 What GraphQL Is, and How It Differs From REST</span>
+## <span style="color:hsl(204,80%,58%)">4. 🌐 What GraphQL Is, and How It Differs From REST</span>
 
 GraphQL is a **query language for APIs** plus a server-side runtime for executing those queries against a **type system** that you define for your data (the *schema*). It was designed by Facebook to solve two chronic REST problems: **over-fetching** (a REST response returns whatever fields the endpoint author decided to include, whether the client needs them or not) and **under-fetching** (assembling a single UI view often means calling several REST endpoints and stitching the responses together on the client).
 
@@ -118,7 +118,7 @@ The concrete differences you can see by comparing this repository's two halves:
 
 Concretely, `graphql-service2` in this repo demonstrates the "many REST endpoints in front of one GraphQL endpoint" pattern in reverse: it exposes REST routes (`GET /api/v1/students/{id}`, `GET /api/v1/students/{id}/filter`, `POST /api/v1/students`) that *each* internally send a hand-written GraphQL document to `graphql-service1`'s single `/graphql` endpoint. This is a common "backend-for-frontend" (BFF) shape: REST at the edge for simple client integration, GraphQL underneath for flexible, typed data fetching.
 
-### <span style="color:hsl(306,68%,44%)">Schema-first typing</span>
+### <span style="color:hsl(341,80%,58%)">Schema-first typing</span>
 
 Spring for GraphQL takes a **schema-first** approach (as opposed to code-first, where the schema is generated from annotated classes). The single source of truth for what the API can do lives in `graphql-service1/src/main/resources/graphql/schema.graphqls`, written in GraphQL's own Schema Definition Language (SDL). Spring Boot auto-locates it via:
 
@@ -131,14 +131,14 @@ graphql:
 
 Java code is written *afterwards* to satisfy that schema — every field the schema promises must have either a matching Java property/record accessor or an explicit resolver method, or the application fails to start (Spring for GraphQL validates the schema against registered resolvers at boot).
 
-### <span style="color:hsl(317,68%,44%)">Resolvers, in one sentence</span>
+### <span style="color:hsl(119,80%,58%)">Resolvers, in one sentence</span>
 
 A **resolver** (Spring calls it a *data fetcher* under the hood, wrapping GraphQL Java's `DataFetcher` interface) is simply "the function that produces the value for one field of one type." GraphQL execution is a tree walk: for every field the client asked for, the engine calls that field's resolver, and if the result is itself an object type, it recurses into that object's own fields' resolvers. This is the single most important mental model for reading the controllers in `graphql-service1` — each `@QueryMapping`/`@SchemaMapping` method is a resolver for exactly one field on exactly one type.
 
 ---
 
 <a id="the-schema-field-by-field"></a>
-## <span style="color:hsl(329,68%,44%)">5. 🗄️ The Schema, Field by Field</span>
+## <span style="color:hsl(256,80%,58%)">5. 🗄️ The Schema, Field by Field</span>
 
 The full schema, from `graphql-service1/src/main/resources/graphql/schema.graphqls`:
 
@@ -246,7 +246,7 @@ Reading this SDL closely tells you a lot before you even look at Java code:
 ---
 
 <a id="schema-type-relationships-er-diagram"></a>
-## <span style="color:hsl(341,68%,44%)">6. 🗄️ Schema Type Relationships (ER Diagram)</span>
+## <span style="color:hsl(34,80%,58%)">6. 🗄️ Schema Type Relationships (ER Diagram)</span>
 
 ```mermaid
 erDiagram
@@ -311,7 +311,7 @@ Notes on reading this diagram as an ER-style chart applied to a GraphQL schema: 
 ---
 
 <a id="how-spring-for-graphql-wires-a-schema-to-code"></a>
-## <span style="color:hsl(352,68%,44%)">7. 🗄️ How Spring for GraphQL Wires a Schema to Code</span>
+## <span style="color:hsl(171,80%,58%)">7. 🗄️ How Spring for GraphQL Wires a Schema to Code</span>
 
 Spring for GraphQL (the `spring-boot-starter-graphql` dependency in `graphql-service1/pom.xml`) is Spring's official integration on top of the reference `graphql-java` engine. At startup it:
 
@@ -332,9 +332,9 @@ public record StudentDto(Long id, String firstName, String lastName, String emai
 ---
 
 <a id="resolver-architecture-in-this-codebase"></a>
-## <span style="color:hsl(4,68%,44%)">8. 🏗️ Resolver Architecture in This Codebase</span>
+## <span style="color:hsl(309,80%,58%)">8. 🏗️ Resolver Architecture in This Codebase</span>
 
-### <span style="color:hsl(15,68%,44%)">`HelloWorldGraphQlController` — the teaching controller</span>
+### <span style="color:hsl(86,80%,58%)">`HelloWorldGraphQlController` — the teaching controller</span>
 
 Five `@QueryMapping` methods, one per top-level `Query` field, none with nested object resolution:
 
@@ -351,7 +351,7 @@ public String fullName(@Argument String firstName, @Argument String lastName) { 
 
 `@Argument` binds a GraphQL argument straight onto a Java method parameter by name (`firstName`/`lastName` here match the schema's `fullName(firstName: String!, lastName: String!)` argument names exactly). `fullNameRequestObject(@Argument HelloWorldInput request)` shows the same binding working for a whole `input` type at once, deserialized into the `HelloWorldInput` record.
 
-### <span style="color:hsl(27,68%,44%)">`StudentGraphQlController` — root query/mutation *and* nested field resolvers</span>
+### <span style="color:hsl(224,80%,58%)">`StudentGraphQlController` — root query/mutation *and* nested field resolvers</span>
 
 ```java
 @QueryMapping
@@ -391,7 +391,7 @@ This one class demonstrates every resolver style Spring for GraphQL offers:
 
 </ul>
 
-### <span style="color:hsl(39,68%,44%)">`AuthorGraphQlController` — a second, independent object graph</span>
+### <span style="color:hsl(1,80%,58%)">`AuthorGraphQlController` — a second, independent object graph</span>
 
 ```java
 @QueryMapping
@@ -406,7 +406,7 @@ public AuthorDto author(PostDto post) { return authorService.getAuthorById(post.
 
 Backed by static in-memory `List`/`Map` data in `AuthorService` (no database at all), this exists purely to demonstrate a **bidirectional** graph — `Author → posts → Post` and `Post → author → Author` — and, as covered below, it is the part of the schema where the classic N+1 shape is easiest to see.
 
-### <span style="color:hsl(50,68%,32%)">Why `address`/`subjects` need controller methods but `id`/`firstName` don't</span>
+### <span style="color:hsl(139,80%,58%)">Why `address`/`subjects` need controller methods but `id`/`firstName` don't</span>
 
 Because `StudentMapper.toDto()` builds `StudentDto` with only `(id, firstName, lastName, email)`:
 
@@ -422,7 +422,7 @@ public static StudentDto toDto(Student student) {
 ---
 
 <a id="query-execution-walkthrough-sequence-diagram"></a>
-## <span style="color:hsl(62,68%,32%)">9. 🔹 Query Execution Walkthrough (Sequence Diagram)</span>
+## <span style="color:hsl(276,80%,58%)">9. 🔹 Query Execution Walkthrough (Sequence Diagram)</span>
 
 Representative query — a client asks for a student's basic fields, computed full name, nested address, and Java-filtered subjects, all in one request:
 
@@ -491,7 +491,7 @@ The diagram deliberately shows **three separate `findByIdWithDetails(1)` calls f
 ---
 
 <a id="the-n1-problem-and-whether-dataloader-is-used-here"></a>
-## <span style="color:hsl(73,68%,32%)">10. 🔹 The N+1 Problem, and Whether DataLoader Is Used Here</span>
+## <span style="color:hsl(54,80%,50%)">10. 🔹 The N+1 Problem, and Whether DataLoader Is Used Here</span>
 
 **The problem, in general:** in GraphQL, resolving a list of parent objects and then resolving a child field *on each one* naturally produces one query for the list plus one query *per item* for the child field — "N+1" queries for N items, instead of 2 (or 1, with a join). This is the single most infamous GraphQL server-side performance trap, because the schema encourages exactly the nesting pattern that triggers it, and it's invisible from the client's side (the query still "looks like" one request).
 
@@ -542,7 +542,7 @@ Spring for GraphQL transparently wires `@BatchMapping` methods into a `DataLoade
 ---
 
 <a id="how-the-two-services-relate"></a>
-## <span style="color:hsl(85,68%,32%)">11. 🔹 How the Two Services Relate</span>
+## <span style="color:hsl(191,80%,58%)">11. 🔹 How the Two Services Relate</span>
 
 **They are two separate, independently-runnable Spring Boot applications — not a federated or composed GraphQL graph.** There is no Apollo Federation, no schema stitching, no `@link`/`@key` directive, and no gateway process anywhere in this repo (confirmed by grepping both modules for federation-related annotations/directives — none exist). Each module has its own `pom.xml`, its own `main()` (`GraphqlService1Application`, `GraphqlService2Application`), its own port, and its own `application.yml`.
 
@@ -619,7 +619,7 @@ sequenceDiagram
 ---
 
 <a id="error-handling"></a>
-## <span style="color:hsl(97,68%,32%)">12. ⚠️ Error Handling</span>
+## <span style="color:hsl(329,80%,58%)">12. ⚠️ Error Handling</span>
 
 `GraphQlExceptionHandler` extends Spring for GraphQL's `DataFetcherExceptionResolverAdapter` to translate Java exceptions thrown inside resolvers into GraphQL-spec-shaped errors (each with a `message`, a `path` pointing at the failing field, and an `extensions.classification`):
 
@@ -644,9 +644,9 @@ Because every field in `StudentDto` is nullable in the schema, a `getStudent` qu
 ---
 
 <a id="quick-start"></a>
-## <span style="color:hsl(108,68%,32%)">13. 🚀 Quick Start</span>
+## <span style="color:hsl(106,80%,58%)">13. 🚀 Quick Start</span>
 
-### <span style="color:hsl(120,68%,32%)">1. Start infrastructure</span>
+### <span style="color:hsl(244,80%,58%)">1. Start infrastructure</span>
 
 ```bash
 docker-compose up -d
@@ -658,7 +658,7 @@ docker-compose up -d
 | Prometheus | http://localhost:9091               |
 | Grafana    | http://localhost:3001 (admin/admin) |
 
-### <span style="color:hsl(131,68%,32%)">2. Run service1 (GraphQL server)</span>
+### <span style="color:hsl(21,80%,58%)">2. Run service1 (GraphQL server)</span>
 
 ```bash
 cd graphql-service1
@@ -673,7 +673,7 @@ mvn spring-boot:run
 
 </ul>
 
-### <span style="color:hsl(143,68%,32%)">3. Run service2 (GraphQL client)</span>
+### <span style="color:hsl(159,80%,58%)">3. Run service2 (GraphQL client)</span>
 
 ```bash
 cd graphql-service2
@@ -687,7 +687,7 @@ mvn spring-boot:run
 
 </ul>
 
-### <span style="color:hsl(155,68%,36%)">4. Run tests</span>
+### <span style="color:hsl(296,80%,58%)">4. Run tests</span>
 
 ```bash
 mvn test
@@ -697,9 +697,9 @@ mvn test
 ---
 
 <a id="graphql-api-reference"></a>
-## <span style="color:hsl(166,68%,36%)">14. 📚 GraphQL API Reference</span>
+## <span style="color:hsl(74,80%,58%)">14. 📚 GraphQL API Reference</span>
 
-### <span style="color:hsl(178,68%,36%)">Schema</span>
+### <span style="color:hsl(211,80%,58%)">Schema</span>
 
 ```graphql
 type Query {
@@ -717,7 +717,7 @@ type Mutation {
 }
 ```
 
-### <span style="color:hsl(190,68%,36%)">Example Queries</span>
+### <span style="color:hsl(349,80%,58%)">Example Queries</span>
 
 **Get student with all fields:**
 ```graphql
@@ -783,7 +783,7 @@ Returns `data.getStudent: null` plus a populated top-level `errors` array (see [
 ---
 
 <a id="rest-api-service-2--graphql-client"></a>
-## <span style="color:hsl(201,68%,44%)">15. 🌐 REST API (Service 2 — GraphQL Client)</span>
+## <span style="color:hsl(126,80%,58%)">15. 🌐 REST API (Service 2 — GraphQL Client)</span>
 
 | Method | Path                           | Description                                   |
 |--------|--------------------------------|-----------------------------------------------|
@@ -796,7 +796,7 @@ Each of these routes is a thin `ClientController` handler that delegates straigh
 ---
 
 <a id="shedlock-distributed-scheduling"></a>
-## <span style="color:hsl(213,68%,44%)">16. ⏰ ShedLock Distributed Scheduling</span>
+## <span style="color:hsl(264,80%,58%)">16. ⏰ ShedLock Distributed Scheduling</span>
 
 <ul>
 
@@ -824,7 +824,7 @@ shedlock:
 ---
 
 <a id="observability"></a>
-## <span style="color:hsl(224,68%,44%)">17. 📈 Observability</span>
+## <span style="color:hsl(41,80%,58%)">17. 📈 Observability</span>
 
 <ul>
 
