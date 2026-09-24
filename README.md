@@ -2,7 +2,7 @@
 
 <img src="image/graphql-logo.png" alt="GraphQL" width="90"/>
 
-Production-grade Spring Boot GraphQL demo — **Spring for GraphQL**, PostgreSQL, Flyway, ShedLock, Prometheus, Grafana, TestContainers, JUnit 5.
+Production-grade Spring Boot GraphQL demo — **Spring for GraphQL**, PostgreSQL, Flyway, ShedLock, Prometheus, Grafana, Testcontainers 2, JUnit 6.
 
 This repository is deliberately built as **two independent Spring Boot applications** so that the same domain (a `Student` with an `Address` and `Subjects`) can be studied from both sides of a GraphQL boundary: `graphql-service1` implements the schema and resolvers (the **server**), and `graphql-service2` calls that schema over HTTP and republishes the result as plain REST (a **client** / BFF). The rest of this document is a from-the-source deep dive into how GraphQL actually works in this codebase — not just how to run it.
 
@@ -36,13 +36,13 @@ This repository is deliberately built as **two independent Spring Boot applicati
 | Layer             | Technology                          |
 |-------------------|-------------------------------------|
 | Language          | Java 25 (virtual threads)           |
-| Framework         | Spring Boot 4.1.0                   |
-| GraphQL           | Spring for GraphQL (spring-graphql) |
-| Database          | PostgreSQL 16                       |
+| Framework         | Spring Boot 4.1.1 (as of 2026)      |
+| GraphQL           | Spring for GraphQL 2.0.5 (graphql-java 25) |
+| Database          | PostgreSQL 19beta3 in compose (18 in tests) |
 | Migrations        | Flyway                              |
-| Distributed Locks | ShedLock 7.7.0 (JDBC provider)      |
+| Distributed Locks | ShedLock 7.10.1 (JDBC provider)     |
 | Observability     | Micrometer + Prometheus + Grafana   |
-| Testing           | JUnit 5, TestContainers             |
+| Testing           | JUnit 6, Testcontainers 2           |
 | Build             | Maven 3.9+                          |
 
 ---
@@ -690,8 +690,8 @@ mvn spring-boot:run
 ### <span style="color:hsl(296,80%,58%)">4. Run tests</span>
 
 ```bash
-mvn test
-# Requires Docker running for TestContainers
+mvn verify   # `mvn test` skips the *IT classes (failsafe)
+# Requires Docker running for Testcontainers
 ```
 
 ---

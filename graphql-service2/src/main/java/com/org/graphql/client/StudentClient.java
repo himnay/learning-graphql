@@ -21,7 +21,7 @@ public class StudentClient {
                 .document("""
                         query GetStudent($id: ID!) {
                             getStudent(id: $id) {
-                                id firstName lastName email
+                                id firstName lastName fullName email
                                 address { street city }
                                 subjects(subjectType: All) { id subjectName marksObtained }
                             }
@@ -59,7 +59,7 @@ public class StudentClient {
                             createStudent(student: $student) {
                                 id firstName lastName fullName email
                                 address { street city }
-                                subjects(subjectType: All) { subjectName marksObtained }
+                                subjects(subjectType: All) { id subjectName marksObtained }
                             }
                         }
                         """)

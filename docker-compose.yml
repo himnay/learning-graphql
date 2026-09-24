@@ -2,7 +2,7 @@ services:
 
   # ── PostgreSQL ─────────────────────────────────────────────────────────────
   postgres:
-    image: postgres:19beta1  # -alpine variant of 19beta1 is broken (missing postgres user)
+    image: postgres:19beta3  # PostgreSQL 19 is still in beta (as of Sep 2026); use 18 for anything stable
     container_name: graphql-postgres
     ports:
       - "5432:5432"
