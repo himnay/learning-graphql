@@ -104,6 +104,16 @@ learning-graphql/
 
 GraphQL is a **query language for APIs** plus a server-side runtime for executing those queries against a **type system** that you define for your data (the *schema*). It was designed by Facebook to solve two chronic REST problems: **over-fetching** (a REST response returns whatever fields the endpoint author decided to include, whether the client needs them or not) and **under-fetching** (assembling a single UI view often means calling several REST endpoints and stitching the responses together on the client).
 
+GraphQL is an API layer, not a new place for business rules: like REST or RPC it should be a
+thin entry point over one shared business-logic layer (where authorization belongs), which in
+turn sits on persistence — exactly how the resolvers here delegate to plain services:
+
+<p align="center">
+  <img src="image/graphql-business-layer.png" alt="REST, GraphQL and RPC side by side on top of one business logic layer containing authorization, above a persistence layer" width="360"/>
+</p>
+
+<p align="center"><sub>Diagram: <a href="https://graphql.org/learn/thinking-in-graphs/">graphql.org — Thinking in Graphs</a>, MIT.</sub></p>
+
 The concrete differences you can see by comparing this repository's two halves:
 
 | Aspect                | Traditional REST (would look like)                                               | GraphQL (as actually implemented here)                                                                                                                                                                          |
@@ -264,7 +274,7 @@ erDiagram
     Post }o--|| Author : "author"
 
     StudentInput ||--o{ SubjectInput : "subjects"
-    StudentInput ..|> StudentDto : "shape mirrors, used as Mutation arg"
+    StudentInput ||..|| StudentDto : "shape mirrors, used as Mutation arg"
 
     StudentDto {
         ID id
