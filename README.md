@@ -89,13 +89,13 @@ learning-graphql/
 <a id="design-patterns-gang-of-four"></a>
 ## <span style="color:hsl(66,80%,50%)">3. 🏗️ Design Patterns (Gang of Four)</span>
 
-| Pattern         | Where Applied                                                     |
-|-----------------|-------------------------------------------------------------------|
-| Factory Method  | `StudentMapper.toDto()`, `SubjectFilterStrategy.of()`             |
-| Template Method | `AbstractScheduler.executeScheduledTask()` → `performTask()`      |
-| Strategy        | `SubjectFilterStrategy` — pluggable subject filtering             |
-| Builder         | Lombok `@Builder` on entities; Java 25 record pattern on DTOs     |
-| Singleton       | Spring `@Bean` singletons for all services, repositories, configs |
+| Pattern         | Where Applied                                                             |
+|-----------------|---------------------------------------------------------------------------|
+| Factory Method  | `StudentMapper.toDto()`, `SubjectFilterStrategy.of()`                     |
+| Template Method | `AbstractScheduler.executeScheduledTask()` → `performTask()`              |
+| Strategy        | `SubjectFilterStrategy` — pluggable subject filtering                     |
+| Builder         | Lombok [`@Builder`][Builder] on entities; Java 25 record pattern on DTOs  |
+| Singleton       | Spring [`@Bean`][Bean] singletons for all services, repositories, configs |
 
 ---
 
@@ -143,7 +143,7 @@ Java code is written *afterwards* to satisfy that schema — every field the sch
 
 ### <span style="color:hsl(119,80%,58%)">Resolvers, in one sentence</span>
 
-A **resolver** (Spring calls it a *data fetcher* under the hood, wrapping GraphQL Java's `DataFetcher` interface) is simply "the function that produces the value for one field of one type." GraphQL execution is a tree walk: for every field the client asked for, the engine calls that field's resolver, and if the result is itself an object type, it recurses into that object's own fields' resolvers. This is the single most important mental model for reading the controllers in `graphql-service1` — each `@QueryMapping`/`@SchemaMapping` method is a resolver for exactly one field on exactly one type.
+A **resolver** (Spring calls it a *data fetcher* under the hood, wrapping GraphQL Java's [`DataFetcher`][DataFetcher] interface) is simply "the function that produces the value for one field of one type." GraphQL execution is a tree walk: for every field the client asked for, the engine calls that field's resolver, and if the result is itself an object type, it recurses into that object's own fields' resolvers. This is the single most important mental model for reading the controllers in `graphql-service1` — each [`@QueryMapping`][QueryMapping]/[`@SchemaMapping`][SchemaMapping] method is a resolver for exactly one field on exactly one type.
 
 ---
 
@@ -325,9 +325,9 @@ Notes on reading this diagram as an ER-style chart applied to a GraphQL schema: 
 
 Spring for GraphQL (the `spring-boot-starter-graphql` dependency in `graphql-service1/pom.xml`) is Spring's official integration on top of the reference `graphql-java` engine. At startup it:
 
-1. Parses every `.graphqls`/`.gql` file under `classpath:graphql/**` (configured in `application.yml`) into an in-memory schema (`GraphQLSchema`).
-2. Scans all Spring `@Controller`-annotated beans for three annotations — `@QueryMapping`, `@MutationMapping`, and `@SchemaMapping` — and registers each annotated method as the `DataFetcher` for one schema field.
-3. Wherever a schema field has **no** explicitly-registered method, it falls back to a `PropertyDataFetcher` that reflectively reads a same-named property/record-accessor from the parent object (this is why `StudentDto.id/firstName/lastName/email` need no controller method at all — they map straight onto the `StudentDto` Java record's own components).
+1. Parses every `.graphqls`/`.gql` file under `classpath:graphql/**` (configured in `application.yml`) into an in-memory schema ([`GraphQLSchema`][GraphQLSchema]).
+2. Scans all Spring [`@Controller`][Controller]-annotated beans for three annotations — [`@QueryMapping`][QueryMapping], [`@MutationMapping`][MutationMapping], and [`@SchemaMapping`][SchemaMapping] — and registers each annotated method as the [`DataFetcher`][DataFetcher] for one schema field.
+3. Wherever a schema field has **no** explicitly-registered method, it falls back to a [`PropertyDataFetcher`][PropertyDataFetcher] that reflectively reads a same-named property/record-accessor from the parent object (this is why `StudentDto.id/firstName/lastName/email` need no controller method at all — they map straight onto the `StudentDto` Java record's own components).
 4. Exposes it all over one HTTP endpoint (`/graphql`, `POST`) plus, in dev, the GraphiQL explorer UI at `/graphiql`.
 5. Validates every incoming query document against the parsed schema *before* executing it — unknown fields, wrong argument types, etc. are rejected with a GraphQL-shaped error, never reaching a resolver.
 
@@ -346,7 +346,7 @@ public record StudentDto(Long id, String firstName, String lastName, String emai
 
 ### <span style="color:hsl(86,80%,58%)">`HelloWorldGraphQlController` — the teaching controller</span>
 
-Five `@QueryMapping` methods, one per top-level `Query` field, none with nested object resolution:
+Five [`@QueryMapping`][QueryMapping] methods, one per top-level `Query` field, none with nested object resolution:
 
 ```java
 @QueryMapping
@@ -359,7 +359,7 @@ public MessageDto message() { ... }
 public String fullName(@Argument String firstName, @Argument String lastName) { ... }
 ```
 
-`@Argument` binds a GraphQL argument straight onto a Java method parameter by name (`firstName`/`lastName` here match the schema's `fullName(firstName: String!, lastName: String!)` argument names exactly). `fullNameRequestObject(@Argument HelloWorldInput request)` shows the same binding working for a whole `input` type at once, deserialized into the `HelloWorldInput` record.
+[`@Argument`][Argument] binds a GraphQL argument straight onto a Java method parameter by name (`firstName`/`lastName` here match the schema's `fullName(firstName: String!, lastName: String!)` argument names exactly). `fullNameRequestObject(@Argument HelloWorldInput request)` shows the same binding working for a whole `input` type at once, deserialized into the `HelloWorldInput` record.
 
 ### <span style="color:hsl(224,80%,58%)">`StudentGraphQlController` — root query/mutation *and* nested field resolvers</span>
 
@@ -394,10 +394,10 @@ This one class demonstrates every resolver style Spring for GraphQL offers:
 
 <ul>
 
-- **`@QueryMapping`** — root-level read (`getStudent`). Method name matches the schema field name by convention.
-- **`@MutationMapping`** — root-level write (`createStudent`).
-- **`@SchemaMapping(typeName = "StudentDto", field = "...")`** — a resolver for a field on a *non-root* type. The first method parameter (`StudentDto student`) is always the **parent object** — the value the engine just produced for `StudentDto` itself — from which the resolver derives the child field's value. This is GraphQL's defining execution shape: resolvers are chained, each one receiving its parent's already-resolved value.
-- **Field-level `@Argument`** — `subjects(StudentDto student, @Argument SubjectEnum subjectType)` shows a nested field resolver receiving *both* its parent object and its own GraphQL argument (`subjectType`), letting `getStudent(id:"1") { subjects(subjectType: Java) { ... } }` filter subjects without a separate query.
+- **[`@QueryMapping`][QueryMapping]** — root-level read (`getStudent`). Method name matches the schema field name by convention.
+- **[`@MutationMapping`][MutationMapping]** — root-level write (`createStudent`).
+- **[`@SchemaMapping(typeName = "StudentDto", field = "...")`][SchemaMapping]** — a resolver for a field on a *non-root* type. The first method parameter (`StudentDto student`) is always the **parent object** — the value the engine just produced for `StudentDto` itself — from which the resolver derives the child field's value. This is GraphQL's defining execution shape: resolvers are chained, each one receiving its parent's already-resolved value.
+- **Field-level [`@Argument`][Argument]** — `subjects(StudentDto student, @Argument SubjectEnum subjectType)` shows a nested field resolver receiving *both* its parent object and its own GraphQL argument (`subjectType`), letting `getStudent(id:"1") { subjects(subjectType: Java) { ... } }` filter subjects without a separate query.
 
 </ul>
 
@@ -414,7 +414,7 @@ public List<PostDto> posts(AuthorDto author) { return authorService.getPostsByAu
 public AuthorDto author(PostDto post) { return authorService.getAuthorById(post.authorId()); }
 ```
 
-Backed by static in-memory `List`/`Map` data in `AuthorService` (no database at all), this exists purely to demonstrate a **bidirectional** graph — `Author → posts → Post` and `Post → author → Author` — and, as covered below, it is the part of the schema where the classic N+1 shape is easiest to see.
+Backed by static in-memory [`List`][List]/[`Map`][Map] data in `AuthorService` (no database at all), this exists purely to demonstrate a **bidirectional** graph — `Author → posts → Post` and `Post → author → Author` — and, as covered below, it is the part of the schema where the classic N+1 shape is easiest to see.
 
 ### <span style="color:hsl(139,80%,58%)">Why `address`/`subjects` need controller methods but `id`/`firstName` don't</span>
 
@@ -509,8 +509,8 @@ The diagram deliberately shows **three separate `findByIdWithDetails(1)` calls f
 
 <ul>
 
-- `Query.authors` (`AuthorGraphQlController.authors()`) returns a `List<AuthorDto>` of size N in a single call.
-- For **every** author in that list, the engine independently invokes `@SchemaMapping(typeName = "Author", field = "posts")` — i.e. `AuthorService.getPostsByAuthorId(author.id())` is called once per author, not once for all authors. A query like:
+- `Query.authors` (`AuthorGraphQlController.authors()`) returns a [`List<AuthorDto>`][List] of size N in a single call.
+- For **every** author in that list, the engine independently invokes [`@SchemaMapping(typeName = "Author", field = "posts")`][SchemaMapping] — i.e. `AuthorService.getPostsByAuthorId(author.id())` is called once per author, not once for all authors. A query like:
 
   ```graphql
   { authors { id name posts { title } } }
@@ -521,11 +521,11 @@ The diagram deliberately shows **three separate `findByIdWithDetails(1)` calls f
 
 </ul>
 
-**Confirmed by reading the code: there is no batching in this repository.** A repo-wide search for `DataLoader`, `BatchLoader`, and Spring for GraphQL's `@BatchMapping` annotation turns up **zero matches**. Every `@SchemaMapping` resolver in both `StudentGraphQlController` and `AuthorGraphQlController` resolves exactly one parent object at a time, with no request-scoped caching or batching layer in front of `AuthorService`/`StudentService`.
+**Confirmed by reading the code: there is no batching in this repository.** A repo-wide search for [`DataLoader`][DataLoader], [`BatchLoader`][BatchLoader], and Spring for GraphQL's [`@BatchMapping`][BatchMapping] annotation turns up **zero matches**. Every `@SchemaMapping` resolver in both `StudentGraphQlController` and `AuthorGraphQlController` resolves exactly one parent object at a time, with no request-scoped caching or batching layer in front of `AuthorService`/`StudentService`.
 
 Two reasons this is currently "not a real production incident" in this specific repo, plus what would change that:
 
-1. **`AuthorService` is a static in-memory `Map`**, not a database call — the N+1 pattern exists structurally, but each "extra" call costs a map lookup, not a network/DB round trip. Swap that in-memory map for, say, a JPA repository backed by a real `posts` table with a `WHERE author_id = ?` query, and the *identical* resolver code becomes N real SQL queries per `authors { posts }` request.
+1. **`AuthorService` is a static in-memory [`Map`][Map]**, not a database call — the N+1 pattern exists structurally, but each "extra" call costs a map lookup, not a network/DB round trip. Swap that in-memory map for, say, a JPA repository backed by a real `posts` table with a `WHERE author_id = ?` query, and the *identical* resolver code becomes N real SQL queries per `authors { posts }` request.
 2. **`StudentDto.address`/`subjects` don't hit the N+1 shape at all in the current schema** — `getStudent` returns a single `StudentDto`, not a list, so "resolve a child field for every item in a list" never applies there. The redundant-refetch issue described in the previous section (querying the same row three times) is a *different*, single-item problem — solvable by caching the already-loaded `Student` on the DTO or in a request-scoped cache, not by DataLoader/batching.
 
 **What the fix would look like, if this repo needed one:** Spring for GraphQL supports exactly this scenario via the `@BatchMapping` annotation (backed by the `org.dataloader` library under the hood). Instead of:
@@ -561,7 +561,7 @@ The relationship between them is purely a **runtime HTTP client/server relations
 <ul>
 
 - **`graphql-service1`** (port `8080`) owns the schema, the database, and every resolver. It is a complete, self-sufficient GraphQL API on its own — you could query it directly from `curl`, Postman, GraphiQL, or any GraphQL client with zero knowledge of `graphql-service2`'s existence.
-- **`graphql-service2`** (port `8081`) has **no schema of its own** (its `pom.xml` even comments the dependency as `"GraphQL client (no server schema required)"`). It depends only on `spring-graphql`'s client support, not `spring-boot-starter-graphql`. At startup, `GraphQLClientConfig` builds a reactive `HttpGraphQlClient` pointed at `graphql-service1`'s endpoint via the externalized property `graphql.server.url` (defaulting to `http://localhost:8080/graphql`):
+- **`graphql-service2`** (port `8081`) has **no schema of its own** (its `pom.xml` even comments the dependency as `"GraphQL client (no server schema required)"`). It depends only on `spring-graphql`'s client support, not `spring-boot-starter-graphql`. At startup, `GraphQLClientConfig` builds a reactive [`HttpGraphQlClient`][HttpGraphQlClient] pointed at `graphql-service1`'s endpoint via the externalized property `graphql.server.url` (defaulting to `http://localhost:8080/graphql`):
 
   ```java
   @Bean
@@ -594,7 +594,7 @@ The relationship between them is purely a **runtime HTTP client/server relations
   }
   ```
 
-- `ClientController` (a `@RestController`) exposes plain REST routes (`GET /api/v1/students/{id}`, `GET /api/v1/students/{id}/filter`, `POST /api/v1/students`) that simply delegate to `StudentClient`, reactively (`Mono<StudentDto>`), returning the GraphQL result as a REST JSON body.
+- `ClientController` (a [`@RestController`][RestController]) exposes plain REST routes (`GET /api/v1/students/{id}`, `GET /api/v1/students/{id}/filter`, `POST /api/v1/students`) that simply delegate to `StudentClient`, reactively ([`Mono<StudentDto>`][Mono]), returning the GraphQL result as a REST JSON body.
 
 </ul>
 
@@ -631,7 +631,7 @@ sequenceDiagram
 <a id="error-handling"></a>
 ## <span style="color:hsl(329,80%,58%)">12. ⚠️ Error Handling</span>
 
-`GraphQlExceptionHandler` extends Spring for GraphQL's `DataFetcherExceptionResolverAdapter` to translate Java exceptions thrown inside resolvers into GraphQL-spec-shaped errors (each with a `message`, a `path` pointing at the failing field, and an `extensions.classification`):
+`GraphQlExceptionHandler` extends Spring for GraphQL's [`DataFetcherExceptionResolverAdapter`][DataFetcherExceptionResolverAdapter] to translate Java exceptions thrown inside resolvers into GraphQL-spec-shaped errors (each with a `message`, a `path` pointing at the failing field, and an `extensions.classification`):
 
 ```java
 @Override
@@ -844,3 +844,25 @@ shedlock:
 - Import a Spring Boot dashboard (e.g. Grafana dashboard ID **19004**) to get JVM, HTTP, and Hikari metrics out of the box
 
 </ul>
+
+<!-- Library classes mentioned above, linked to their source at the versions this project builds with. -->
+
+[Argument]: https://github.com/spring-projects/spring-graphql/blob/v2.0.5/spring-graphql/src/main/java/org/springframework/graphql/data/method/annotation/Argument.java
+[BatchLoader]: https://github.com/graphql-java/java-dataloader/blob/v6.0.0/src/main/java/org/dataloader/BatchLoader.java
+[BatchMapping]: https://github.com/spring-projects/spring-graphql/blob/v2.0.5/spring-graphql/src/main/java/org/springframework/graphql/data/method/annotation/BatchMapping.java
+[Bean]: https://github.com/spring-projects/spring-framework/blob/v7.0.9/spring-context/src/main/java/org/springframework/context/annotation/Bean.java
+[Builder]: https://github.com/projectlombok/lombok/blob/v1.18.46/src/core/lombok/Builder.java
+[Controller]: https://github.com/spring-projects/spring-framework/blob/v7.0.9/spring-context/src/main/java/org/springframework/stereotype/Controller.java
+[DataFetcher]: https://github.com/graphql-java/graphql-java/blob/v25.0/src/main/java/graphql/schema/DataFetcher.java
+[DataFetcherExceptionResolverAdapter]: https://github.com/spring-projects/spring-graphql/blob/v2.0.5/spring-graphql/src/main/java/org/springframework/graphql/execution/DataFetcherExceptionResolverAdapter.java
+[DataLoader]: https://github.com/graphql-java/java-dataloader/blob/v6.0.0/src/main/java/org/dataloader/DataLoader.java
+[GraphQLSchema]: https://github.com/graphql-java/graphql-java/blob/v25.0/src/main/java/graphql/schema/GraphQLSchema.java
+[HttpGraphQlClient]: https://github.com/spring-projects/spring-graphql/blob/v2.0.5/spring-graphql/src/main/java/org/springframework/graphql/client/HttpGraphQlClient.java
+[List]: https://github.com/openjdk/jdk/blob/jdk-25-ga/src/java.base/share/classes/java/util/List.java
+[Map]: https://github.com/openjdk/jdk/blob/jdk-25-ga/src/java.base/share/classes/java/util/Map.java
+[Mono]: https://github.com/reactor/reactor-core/blob/v3.8.7/reactor-core/src/main/java/reactor/core/publisher/Mono.java
+[MutationMapping]: https://github.com/spring-projects/spring-graphql/blob/v2.0.5/spring-graphql/src/main/java/org/springframework/graphql/data/method/annotation/MutationMapping.java
+[PropertyDataFetcher]: https://github.com/graphql-java/graphql-java/blob/v25.0/src/main/java/graphql/schema/PropertyDataFetcher.java
+[QueryMapping]: https://github.com/spring-projects/spring-graphql/blob/v2.0.5/spring-graphql/src/main/java/org/springframework/graphql/data/method/annotation/QueryMapping.java
+[RestController]: https://github.com/spring-projects/spring-framework/blob/v7.0.9/spring-web/src/main/java/org/springframework/web/bind/annotation/RestController.java
+[SchemaMapping]: https://github.com/spring-projects/spring-graphql/blob/v2.0.5/spring-graphql/src/main/java/org/springframework/graphql/data/method/annotation/SchemaMapping.java
