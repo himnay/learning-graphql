@@ -35,7 +35,7 @@ This repository is deliberately built as **two independent Spring Boot applicati
 
 | Layer             | Technology                          |
 |-------------------|-------------------------------------|
-| Language          | Java 25 (virtual threads)           |
+| Language          | Java 27 (virtual threads)           |
 | Framework         | Spring Boot 4.1.1 (as of 2026)      |
 | GraphQL           | Spring for GraphQL 2.0.5 (graphql-java 25) |
 | Database          | PostgreSQL 19beta3 in compose (18 in tests) |
@@ -66,7 +66,7 @@ learning-graphql/
 │       │   ├── enums/              # SubjectEnum
 │       │   ├── exception/          # StudentNotFoundException, GraphQlExceptionHandler
 │       │   ├── mapper/             # StudentMapper (Factory Method pattern)
-│       │   ├── model/              # Java 25 records (DTOs + Input types)
+│       │   ├── model/              # Java records (DTOs + Input types)
 │       │   ├── repository/         # Spring Data JPA
 │       │   ├── scheduler/          # ShedLock scheduled tasks (Template Method)
 │       │   ├── service/            # StudentService, AuthorService
@@ -94,7 +94,7 @@ learning-graphql/
 | Factory Method  | `StudentMapper.toDto()`, `SubjectFilterStrategy.of()`                     |
 | Template Method | `AbstractScheduler.executeScheduledTask()` → `performTask()`              |
 | Strategy        | `SubjectFilterStrategy` — pluggable subject filtering                     |
-| Builder         | Lombok [`@Builder`][Builder] on entities; Java 25 record pattern on DTOs  |
+| Builder         | Lombok [`@Builder`][Builder] on entities; Java records on DTOs            |
 | Singleton       | Spring [`@Bean`][Bean] singletons for all services, repositories, configs |
 
 ---
@@ -370,7 +370,7 @@ public StudentDto getStudent(@Argument Long id) {
 }
 
 @MutationMapping
-public StudentDto createStudent(@Argument StudentInput student) {
+public StudentDto createStudent(@Argument @Valid StudentInput student) {
     return studentService.createStudent(student);
 }
 
@@ -398,6 +398,7 @@ This one class demonstrates every resolver style Spring for GraphQL offers:
 - **[`@MutationMapping`][MutationMapping]** — root-level write (`createStudent`).
 - **[`@SchemaMapping(typeName = "StudentDto", field = "...")`][SchemaMapping]** — a resolver for a field on a *non-root* type. The first method parameter (`StudentDto student`) is always the **parent object** — the value the engine just produced for `StudentDto` itself — from which the resolver derives the child field's value. This is GraphQL's defining execution shape: resolvers are chained, each one receiving its parent's already-resolved value.
 - **Field-level [`@Argument`][Argument]** — `subjects(StudentDto student, @Argument SubjectEnum subjectType)` shows a nested field resolver receiving *both* its parent object and its own GraphQL argument (`subjectType`), letting `getStudent(id:"1") { subjects(subjectType: Java) { ... } }` filter subjects without a separate query.
+- **[`@Valid`][Valid] on the mutation input** — Spring for GraphQL applies Bean Validation to controller arguments, but the constraints *inside* `StudentInput` (`@NotBlank`, `@Email`, and `@PositiveOrZero` on each subject through `List<@Valid SubjectInput>`) only cascade with `@Valid`. A violation reaches `GraphQlExceptionHandler` as a [`ConstraintViolationException`][ConstraintViolationException] and becomes a `BAD_REQUEST` error (§12).
 
 </ul>
 
@@ -561,13 +562,18 @@ The relationship between them is purely a **runtime HTTP client/server relations
 <ul>
 
 - **`graphql-service1`** (port `8080`) owns the schema, the database, and every resolver. It is a complete, self-sufficient GraphQL API on its own — you could query it directly from `curl`, Postman, GraphiQL, or any GraphQL client with zero knowledge of `graphql-service2`'s existence.
-- **`graphql-service2`** (port `8081`) has **no schema of its own** (its `pom.xml` even comments the dependency as `"GraphQL client (no server schema required)"`). It depends only on `spring-graphql`'s client support, not `spring-boot-starter-graphql`. At startup, `GraphQLClientConfig` builds a reactive [`HttpGraphQlClient`][HttpGraphQlClient] pointed at `graphql-service1`'s endpoint via the externalized property `graphql.server.url` (defaulting to `http://localhost:8080/graphql`):
+- **`graphql-service2`** (port `8081`) has **no schema of its own** It depends only on `spring-graphql`'s client support, not `spring-boot-starter-graphql`. At startup, `GraphQLClientConfig` builds a reactive [`HttpGraphQlClient`][HttpGraphQlClient] pointed at `graphql-service1`'s endpoint via the externalized property `graphql.server.url` (defaulting to `http://localhost:8080/graphql`):
 
   ```java
   @Bean
   public HttpGraphQlClient graphQlClient() {
+      // Bounded timeouts: without them a stalled graphql-service1 would hold every request forever.
+      HttpClient httpClient = HttpClient.create()
+              .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5_000)
+              .responseTimeout(Duration.ofSeconds(10));
       WebClient webClient = WebClient.builder()
               .baseUrl(graphQlServerUrl)
+              .clientConnector(new ReactorClientHttpConnector(httpClient))
               .defaultHeader("Content-Type", "application/json")
               .build();
       return HttpGraphQlClient.create(webClient);
@@ -582,7 +588,7 @@ The relationship between them is purely a **runtime HTTP client/server relations
               .document("""
                       query GetStudent($id: ID!) {
                           getStudent(id: $id) {
-                              id firstName lastName email
+                              id firstName lastName fullName email
                               address { street city }
                               subjects(subjectType: All) { id subjectName marksObtained }
                           }
@@ -594,7 +600,7 @@ The relationship between them is purely a **runtime HTTP client/server relations
   }
   ```
 
-- `ClientController` (a [`@RestController`][RestController]) exposes plain REST routes (`GET /api/v1/students/{id}`, `GET /api/v1/students/{id}/filter`, `POST /api/v1/students`) that simply delegate to `StudentClient`, reactively ([`Mono<StudentDto>`][Mono]), returning the GraphQL result as a REST JSON body.
+- `ClientController` (a [`@RestController`][RestController]) exposes plain REST routes (`GET /api/v1/students/{id}`, `GET /api/v1/students/{id}/filter`, `POST /api/v1/students`) that simply delegate to `StudentClient`, reactively ([`Mono<StudentDto>`][Mono]), returning the GraphQL result as a REST JSON body. GraphQL errors from `graphql-service1` arrive as `FieldAccessException`; the controller's `@ExceptionHandler` turns their classification into an HTTP status (`NOT_FOUND` → 404, `BAD_REQUEST` → 400, anything else → 502) instead of a blanket 500.
 
 </ul>
 
@@ -640,6 +646,16 @@ protected GraphQLError resolveToSingleError(Throwable ex, DataFetchingEnvironmen
         return GraphqlErrorBuilder.newError(env)
                 .errorType(ErrorType.NOT_FOUND)
                 .message(ex.getMessage())
+                .build();
+    }
+    if (ex instanceof ConstraintViolationException violations) {   // a @Valid argument failed
+        String message = violations.getConstraintViolations().stream()
+                .map(v -> v.getPropertyPath() + ": " + v.getMessage())
+                .sorted()
+                .collect(Collectors.joining("; "));
+        return GraphqlErrorBuilder.newError(env)
+                .errorType(ErrorType.BAD_REQUEST)
+                .message(message)   // e.g. "createStudent.student.email: must be a well-formed email address"
                 .build();
     }
     return GraphqlErrorBuilder.newError(env)
@@ -851,18 +867,20 @@ shedlock:
 [BatchLoader]: https://github.com/graphql-java/java-dataloader/blob/v6.0.0/src/main/java/org/dataloader/BatchLoader.java
 [BatchMapping]: https://github.com/spring-projects/spring-graphql/blob/v2.0.5/spring-graphql/src/main/java/org/springframework/graphql/data/method/annotation/BatchMapping.java
 [Bean]: https://github.com/spring-projects/spring-framework/blob/v7.0.9/spring-context/src/main/java/org/springframework/context/annotation/Bean.java
-[Builder]: https://github.com/projectlombok/lombok/blob/v1.18.46/src/core/lombok/Builder.java
+[Builder]: https://github.com/projectlombok/lombok/blob/v1.18.48/src/core/lombok/Builder.java
+[ConstraintViolationException]: https://github.com/jakartaee/validation/blob/3.1.1/src/main/java/jakarta/validation/ConstraintViolationException.java
 [Controller]: https://github.com/spring-projects/spring-framework/blob/v7.0.9/spring-context/src/main/java/org/springframework/stereotype/Controller.java
 [DataFetcher]: https://github.com/graphql-java/graphql-java/blob/v25.0/src/main/java/graphql/schema/DataFetcher.java
 [DataFetcherExceptionResolverAdapter]: https://github.com/spring-projects/spring-graphql/blob/v2.0.5/spring-graphql/src/main/java/org/springframework/graphql/execution/DataFetcherExceptionResolverAdapter.java
 [DataLoader]: https://github.com/graphql-java/java-dataloader/blob/v6.0.0/src/main/java/org/dataloader/DataLoader.java
 [GraphQLSchema]: https://github.com/graphql-java/graphql-java/blob/v25.0/src/main/java/graphql/schema/GraphQLSchema.java
 [HttpGraphQlClient]: https://github.com/spring-projects/spring-graphql/blob/v2.0.5/spring-graphql/src/main/java/org/springframework/graphql/client/HttpGraphQlClient.java
-[List]: https://github.com/openjdk/jdk/blob/jdk-25-ga/src/java.base/share/classes/java/util/List.java
-[Map]: https://github.com/openjdk/jdk/blob/jdk-25-ga/src/java.base/share/classes/java/util/Map.java
+[List]: https://github.com/openjdk/jdk/blob/jdk-27-ga/src/java.base/share/classes/java/util/List.java
+[Map]: https://github.com/openjdk/jdk/blob/jdk-27-ga/src/java.base/share/classes/java/util/Map.java
 [Mono]: https://github.com/reactor/reactor-core/blob/v3.8.7/reactor-core/src/main/java/reactor/core/publisher/Mono.java
 [MutationMapping]: https://github.com/spring-projects/spring-graphql/blob/v2.0.5/spring-graphql/src/main/java/org/springframework/graphql/data/method/annotation/MutationMapping.java
 [PropertyDataFetcher]: https://github.com/graphql-java/graphql-java/blob/v25.0/src/main/java/graphql/schema/PropertyDataFetcher.java
 [QueryMapping]: https://github.com/spring-projects/spring-graphql/blob/v2.0.5/spring-graphql/src/main/java/org/springframework/graphql/data/method/annotation/QueryMapping.java
 [RestController]: https://github.com/spring-projects/spring-framework/blob/v7.0.9/spring-web/src/main/java/org/springframework/web/bind/annotation/RestController.java
 [SchemaMapping]: https://github.com/spring-projects/spring-graphql/blob/v2.0.5/spring-graphql/src/main/java/org/springframework/graphql/data/method/annotation/SchemaMapping.java
+[Valid]: https://github.com/jakartaee/validation/blob/3.1.1/src/main/java/jakarta/validation/Valid.java
