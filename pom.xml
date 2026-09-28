@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.org.llm</groupId>
         <artifactId>super-pom</artifactId>
-        <version>1.1.4</version>
+        <version>1.2.0</version>
         <relativePath>../super-pom/pom.xml</relativePath>
     </parent>
 
@@ -21,12 +21,6 @@
         <module>graphql-service1</module>
         <module>graphql-service2</module>
     </modules>
-
-    <properties>
-        <java.version>25</java.version>
-        <maven.compiler.release>${java.version}</maven.compiler.release>
-
-    </properties>
 
     <build>
         <pluginManagement>
@@ -64,19 +58,13 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
+                    <!-- The integration-test/verify execution comes from super-pom ("integration-tests");
+                         declaring another one here made every IT run twice. -->
                     <configuration>
                         <includes>
                             <include>**/*IT.java</include>
                         </includes>
                     </configuration>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>integration-test</goal>
-                                <goal>verify</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
