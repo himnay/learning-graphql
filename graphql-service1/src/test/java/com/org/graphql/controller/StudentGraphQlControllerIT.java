@@ -132,6 +132,35 @@ class StudentGraphQlControllerIT {
     }
 
     @Test
+    @DisplayName("createStudent rejects input that breaks the StudentInput constraints with BAD_REQUEST")
+    void createStudent_invalidInput_returnsBadRequest() {
+        String mutation = """
+                mutation CreateStudent($student: StudentInput!) {
+                    createStudent(student: $student) { id }
+                }
+                """;
+        var variables = Map.<String, Object>of("student", Map.of(
+                "firstName", " ",
+                "lastName", "Walker",
+                "email", "not-an-email",
+                "street", "Baker St",
+                "city", "London",
+                "subjects", List.of(Map.of("subjectName", "Java", "marksObtained", -1.0))
+        ));
+        var result = graphqlWithVariables(mutation, variables);
+
+        @SuppressWarnings("unchecked")
+        var errors = (List<Map<String, Object>>) result.get("errors");
+        assertThat(errors).hasSize(1);
+        @SuppressWarnings("unchecked")
+        var extensions = (Map<String, Object>) errors.getFirst().get("extensions");
+        assertThat(extensions.get("classification")).isEqualTo("BAD_REQUEST");
+        assertThat((String) errors.getFirst().get("message"))
+                .contains("student.email", "student.firstName", "marksObtained");
+        assertThat(((Map<?, ?>) result.get("data")).get("createStudent")).isNull();
+    }
+
+    @Test
     @DisplayName("getStudent returns a GraphQL error when the student id does not exist")
     void getStudent_notFound_returnsError() {
         var result = graphql("{ getStudent(id: \"9999\") { firstName } }");

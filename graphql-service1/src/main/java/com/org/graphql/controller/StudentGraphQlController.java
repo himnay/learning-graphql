@@ -1,5 +1,6 @@
 package com.org.graphql.controller;
 
+import jakarta.validation.Valid;
 import com.org.graphql.enums.SubjectEnum;
 import com.org.graphql.model.AddressDto;
 import com.org.graphql.model.StudentDto;
@@ -31,7 +32,7 @@ public class StudentGraphQlController {
 
     /** Creates student. */
     @MutationMapping
-    public StudentDto createStudent(@Argument StudentInput student) {
+    public StudentDto createStudent(@Argument @Valid StudentInput student) {
         log.info("GraphQL mutation: createStudent [firstName={}]", student.firstName());
         return studentService.createStudent(student);
     }

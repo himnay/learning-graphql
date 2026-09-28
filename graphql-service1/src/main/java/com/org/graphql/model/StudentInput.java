@@ -1,5 +1,6 @@
 package com.org.graphql.model;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -12,6 +13,6 @@ public record StudentInput(
         @Email @NotBlank String email,
         @NotBlank String street,
         @NotBlank String city,
-        @NotEmpty List<SubjectInput> subjects
+        @NotEmpty List<@Valid SubjectInput> subjects
 ) {
 }
