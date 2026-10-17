@@ -1,3 +1,7 @@
+server:
+  port: 8081
+  shutdown: graceful
+
 spring:
   application:
     name: graphql-service2
@@ -11,10 +15,6 @@ spring:
 graphql:
   server:
     url: ${GRAPHQL_SERVER_URL:http://localhost:8080/graphql}
-
-server:
-  port: 8081
-  shutdown: graceful
 
 management:
   endpoints:
