@@ -36,7 +36,7 @@ This repository is deliberately built as **two independent Spring Boot applicati
 | Layer             | Technology                          |
 |-------------------|-------------------------------------|
 | Language          | Java 27 (virtual threads)           |
-| Framework         | Spring Boot 4.1.1 (as of 2026)      |
+| Framework         | Spring Boot 4.1.2 (as of 2026)      |
 | GraphQL           | Spring for GraphQL 2.0.5 (graphql-java 25) |
 | Database          | PostgreSQL 19beta3 in compose (18 in tests) |
 | Migrations        | Flyway                              |
